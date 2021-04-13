@@ -1,0 +1,55 @@
+Utilisation servers Station WS0:	
+NaN
+NaN
+
+
+Utilisation servers Station WS1:	
+NaN
+NaN
+NaN
+NaN
+NaN
+
+
+Utilisation servers Station WS2:	
+NaN
+NaN
+NaN
+NaN
+NaN
+
+
+
+
+Avg utilisation Station WS0:	
+NaN
+
+Avg utilisation Station WS1:	
+NaN
+
+Avg utilisation Station WS2:	
+NaN
+
+
+
+Overall avg utilisation:NaN
+
+
+
+
+Cycle time
+
+
+Avg cycle time:NaN
+
+
+Number	Observation	Running Average
+
+Arr S	Number	Cycle time
+
+0	0	0.0
+1	0	0.0
+2	0	0.0
+3	0	0.0
+Objective: 0.0
+
