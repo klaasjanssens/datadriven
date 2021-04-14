@@ -18,7 +18,7 @@ public class Procedure {
     int max_C = 20000; //max number of jobs,customers (can enlarge if necessary)
     int max_run = 10; 
     int max_S = 10; //servers
-    int max_AS = 5; //arrival sources (in this case we have 4)
+    int max_AS = 4; //arrival sources (in this case we have 4)
     int max_nr_stations = 10; 
     int max_nr_job_types = 10; 
     int seed;
@@ -333,11 +333,32 @@ public class Procedure {
         }
         
         /* DETERMINE FIRST ARRIVAL + FIRST DEPARTURE */
+        
         // TO DO STUDENT    // Put all departure times for all customers to +infty
+        for (i1 = 0; i1 < max_AS; i1++){
+            for (i2 = 0; i2 < max_nr_stations; i2++){
+                t_d[i1][i2] = infinity; 
+            }  
+        }
+      
         // TO DO STUDENT    // Generate first arrival for all sources
+        for (i3 = 0; i3 < max_AS; i3++){
+            t_a[i3] = Distributions.Poisson_distribution(lambda[i3],this.random); // INVERSION METHOD POISSON DISTRIBUTION
+        }
+        
         // TO DO STUDENT    // Get next arrival
+        for (int i4 = 0; i4 < max_AS; i4++){
+            first_ta = infinity;
+            if(t_a[i4] < first_ta){
+                first_ta = t_a[i4];
+                index_arr = i4;
+            }
+        }
+        
         // TO DO STUDENT    // Calculate average arrival time to the system
-    }   
+        
+    
+    }
     
     private void production_system(){
         // TO DO STUDENT         // Perform simulation until prespecified time/number of customers have departed (while loop)
