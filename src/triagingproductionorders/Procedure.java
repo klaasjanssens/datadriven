@@ -335,8 +335,8 @@ public class Procedure {
         /* DETERMINE FIRST ARRIVAL + FIRST DEPARTURE */
         
         // TO DO STUDENT    // Put all departure times for all customers to +infty
-        for (i1 = 0; i1 < max_AS; i1++){
-            for (i2 = 0; i2 < max_nr_stations; i2++){
+        for (i1 = 0; i1 < nr_stations; i1++){
+            for (i2 = 0; i2 < nr_servers[i1]; i2++){   //JUIST?
                 t_d[i1][i2] = infinity; 
             }  
         }
@@ -361,16 +361,115 @@ public class Procedure {
     }
     
     private void production_system(){
-        // TO DO STUDENT         // Perform simulation until prespecified time/number of customers have departed (while loop)
-        // TO DO STUDENT        //Identify next departure event
-        // TO DO STUDENT        // Identify next arrival event
-        // TO DO STUDENT        // Identify next event (arrival or departure)
-        // TO DO STUDENT        // ARRIVAL EVENT
-        // TO DO STUDENT        // DEPARTURE EVENT
+        while(run < max_run){
+        if(triaging == 0 ){ //Without triaging
+            
+            // TO DO STUDENT         // Perform simulation until prespecified (time) number of customers have departed (while loop)
+             while(n_d < N){                        // As long as the number of customers departed < N, perform simulation
+                
+                                     // TO DO STUDENT        //Identify next departure event
+                for (i1 = 0; i1 < nr_stations; i1++){
+                    for (i2 = 0; i2 < nr_servers[i1]; i2++){
+                            first_td = infinity;
+                            if(t_d[i1][i2] < first_td){
+                             first_td = t_d[i1][i2];
+                             index_dep_station = i1;    
+                             index_dep_server = i2;
+                             //index_type
+                            }
+                    }
+                }
+               
+                // TO DO STUDENT        // Identify next arrival event
+                //first_ta
+                
+                // TO DO STUDENT        // Identify next event (arrival or departure)
+                
+                if(first_ta < first_td){ // TO DO STUDENT        // ARRIVAL EVENT
+                    arrival_event();
+                } else {                // TO DO STUDENT        // DEPARTURE EVENT 
+                    departure_event();
+                }
+                
+                
+             }
+            
+        } else { //With triaging
+            // TO DO STUDENT        //Identify next departure event
+            // TO DO STUDENT        // Identify next arrival event
+            // TO DO STUDENT        // Identify next event (arrival or departure)
+            // TO DO STUDENT        // ARRIVAL EVENT
+            // TO DO STUDENT        // DEPARTURE EVENT
+        }
+        
+        run++;
+        }
+        
     }
     
     private void arrival_event(){
         // TO DO STUDENT        // DEFINE ARRIVAL EVENT
+        
+        if(triaging == 0){  //Without triaging
+            
+            t = first_ta;               // Increment t and jump to arrival time
+            
+            n++;                        //Increase the total number of jobs in the system
+            //tot_n[run]++;               //Icrease number of customers in the system over time
+            
+            n_a++;                      //Increase number of jobs arrived to the system
+            
+            
+            job_type[n_a] = index_arr;  // Type of job arriving
+            time_arrival[run][n_a] = first_ta; //Time of arrival of the nth job for every run
+            
+           
+            int count = 0;
+            int worker_idle = 0;
+            
+            while(count == 0){
+            for(i1 = 0; i1 < nr_servers[1]; i1++){ //number of workers busy
+                count = current_cust[1][i1];
+                worker_idle = i1;                   //First idle worker
+            }
+            }
+            
+            if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> Arrival to an empty system
+                
+                time_arrival_ws[run][1][n_a] = first_ta; //Initialize arrival time at WS1
+                n_ws[1]++;                  //number of jobs at WS1
+                
+                //Processing of the job
+                current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
+                list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
+                
+                
+                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
+                time_service[run][1][n_a] = t_mu;                                           // Store service time customer n_a
+                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                tot_mu[run] += t_mu;                                                        //  Update Total Service Time
+                
+                current_station[n_a] = 1;                                                   //Current station of a job 
+                
+            } else {                        //In queue
+                 n_a_ws[1]++;               //Number of jobs arrived to WS1 - queue 
+                 
+            }
+            
+            
+            t_a[index_arr] = Distributions.Poisson_distribution(lambda[index_arr],this.random); // Generate interarrival time of next arrival
+        
+            // Calculate arrival time of next arrivals
+            for (i3 = 0; i3 < max_AS; i3++){
+            t_a[i3] = t_a[i3] + t;
+            }
+                
+            // mean_interarrival_time[run]
+            
+        } else {            //With triaging
+            
+        }
+        
     }
 
     private void departure_event(){
