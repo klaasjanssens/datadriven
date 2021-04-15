@@ -433,7 +433,7 @@ public class Procedure {
             }
             }
             
-            if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> Arrival to an empty system
+            if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
                 
                 time_arrival_ws[run][1][n_a] = first_ta; //Initialize arrival time at WS1
                 n_ws[1]++;                  //number of jobs at WS1
