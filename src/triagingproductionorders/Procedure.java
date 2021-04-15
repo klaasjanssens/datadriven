@@ -361,7 +361,7 @@ public class Procedure {
     }
     
     private void production_system(){
-        while(run < max_run){
+        
         if(triaging == 0 ){ //Without triaging
             
             // TO DO STUDENT         // Perform simulation until prespecified (time) number of customers have departed (while loop)
@@ -402,8 +402,7 @@ public class Procedure {
             // TO DO STUDENT        // DEPARTURE EVENT
         }
         
-        run++;
-        }
+        
         
     }
     
