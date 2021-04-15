@@ -453,6 +453,8 @@ public class Procedure {
             } else {                        //In queue
                  n_a_ws[1]++;               //Number of jobs arrived to WS1 - queue 
                  
+                 //current_station ?
+                 
             }
             
             
