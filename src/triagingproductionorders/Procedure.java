@@ -101,7 +101,12 @@ public class Procedure {
     double [] mean_customers_queue = new double[max_run];
     double [] tot_n_queue = new double[max_run];
     double [][] tot_n_queue_ws = new double[max_run][max_nr_stations];          // Total number of jobs in queue at workstation over time
-    double [] queue_ws = new double[max_nr_stations];                           // Total number of jobs in queue at workstation
+    int [] queue_ws1 = new int[max_C];                           // Total number of jobs in queue at workstation
+    int queue_ws1_counter = 0;
+    int [] queue_ws2 = new int[max_C];                           // Total number of jobs in queue at workstation
+    int queue_ws2_counter = 0;
+    int [] queue_ws0 = new int[max_C];                           // Total number of jobs in queue at workstation
+    int queue_ws0_counter = 0;
     
     /* VARIABLES RELATED TO Processed JOBS */
     double [][] time_departure = new double[max_run][max_C];
@@ -417,10 +422,18 @@ public class Procedure {
                 current_station[n_a] = route[0];                                                   //Current station of a job 
                 
             } else {                        //In queue
-                 queue_ws[1]++;              //Number of jobs arrived to WS1 - queue 
-                 
-                 //current_station ?
-                 
+                //Add unit to queue
+                int c = 0;
+                while(c == 0){
+                    for(int q = 0; q <queue_ws1.length;q++ ){
+                        if(queue_ws1[q] ==0){
+                            queue_ws1[q] = n_a;
+                            c++;
+                        }
+                    }
+                }
+                queue_ws1_counter++;
+                
             }
             
             // Generate interarrival time of next arrival
@@ -450,27 +463,58 @@ public class Procedure {
         
         //WS1                     
         if(index_dep_station == 1){
-            n_d_ws[1]++;        //number of jobs handels at WS1
+           
+            
+            n_d_ws[index_dep_station]++;        //number of jobs handels at WS1
+            t = first_td;       //update time
             
             //1. Idle maken unit eruit
-            n_ws[1]--;                  //number of jobs at WS1
-                
-                
+            n_ws[index_dep_station]--;                  //number of jobs at WS1
+            
+                            //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
+            list_process[1][n_d_ws[1]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan            
             current_cust[1][index_dep_server] = 0; 
-            list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
-                
-                
-                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
-                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
-                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
-                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
-                
-                current_station[n_a] = route[0];                                                   //Current station of a job 
             
+            //2. Processed 
+            time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t; //Save departure time ws
+                //Time in WS1 
+            time_system_job_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]];
+                //Waiting time queue WS1
+            waiting_time_job_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = time_arrival_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] - time_arrival[run_n][n_d_ws[1]];
             
-            //Units queue?
-            if(queue_ws[1] > 0){ //Process type
+            //3. Units queue?
+            
+            if( queue_ws1_counter > 0){ //Start processing of next unit in WS1
+                int next_arrival = 0;
                 
+                queue_ws1_counter--;
+                next_arrival = queue_ws1[0];
+                
+                
+                for(int q = 1; q <queue_ws1.length;q++ ){
+                    queue_ws1[q-1] = queue_ws1[q];
+                    }
+                
+            
+                //Last post fill again
+                queue_ws1[max_C - 1] =0;
+                
+                //Processing in WS1
+                time_arrival_ws[run_n][index_dep_station][next_arrival] = first_ta; //Initialize arrival time at WS1
+                n_ws[1]++;                  //number of jobs at WS1
+                
+                //Processing of the job
+                current_cust[index_dep_station][index_dep_server] = next_arrival; //Customer handels by WS1 and the idle worker 
+                
+                t_mu = Distributions.Exponential_distribution(mu[index_dep_station][job_type[next_arrival]],this.random);// Generate service time
+                time_service[run_n][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
+                t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
+                tot_mu[run_n] += t_mu;                                                                                  //  Update Total Service Time
+                
+                current_station[next_arrival] = route[0];                                                               //Current station of a job 
+            }   
+            } else {
+                t_d[index_dep_station][index_dep_server] = infinity;
             }
             
             
