@@ -22,6 +22,7 @@ public class Procedure {
     int max_nr_stations = 10; 
     int max_nr_job_types = 10; 
     int seed;
+    
     Random random; // needed to produce random numbers with a given seed
         
     /* COUNTER */
@@ -33,6 +34,7 @@ public class Procedure {
     char [] naam = new char[300];
     char [] sproblem = new char[10];
     double left_var_Triangular, right_var_Triangular;
+    int run_n = 0;
         
     /* INPUT DATA RELATED TO RADIOLOGY DPT */
     int nr_stations;                                                            //Number of workstations
@@ -71,7 +73,7 @@ public class Procedure {
     double [][] time_arrival = new double[max_run][max_C];                      // Time of arrival of the job to the ancillary services
     double [][][] time_arrival_ws = new double[max_run][max_nr_stations][max_C]; // Time of arrival of a particular job to a particular workstation
     double [] mean_interarrival_time = new double[max_run];
-
+ 
     /* PARAMETERS RELATED TO Processing OF JOBS */
     double [][] mu = new double[max_nr_stations][max_nr_job_types];             // Processing rate per station and job type
     double [][] var = new double[max_nr_stations][max_nr_job_types];            // Variance per station and job type
@@ -99,7 +101,8 @@ public class Procedure {
     double [] mean_customers_queue = new double[max_run];
     double [] tot_n_queue = new double[max_run];
     double [][] tot_n_queue_ws = new double[max_run][max_nr_stations];          // Total number of jobs in queue at workstation over time
-
+    double [] queue_ws = new double[max_nr_stations];                           // Total number of jobs in queue at workstation
+    
     /* VARIABLES RELATED TO Processed JOBS */
     double [][] time_departure = new double[max_run][max_C];
     double [][][] time_departure_ws = new double[max_run][max_nr_stations][max_C];
@@ -166,10 +169,10 @@ public class Procedure {
         mu[2][1] = 4.0/5.0;
         mu[2][2] = 2.0/3.0;
         mu[2][3] = 2.0/3.0;
-        mu[3][0] = 0;
+        /**mu[3][0] = 0;
         mu[3][1] = 0;
         mu[3][2] = 0;
-        mu[3][3] = 0;
+        mu[3][3] = 0;*/
 
         obj_fct[0] = 8;
         obj_fct[1] = 4;
@@ -186,11 +189,13 @@ public class Procedure {
     
     public void doProcedure() throws IOException{
         L = 1;
+        
         for (i3 = 0; i3 < L; i3++){
             K = 1;                              //1 replication per run 
             for (run = 0; run < K; run++){
                 seed = (i3+1)*K-run;                                            // Ensure you use a different seed each time to get IID replications
                 resetVariables();
+                run_n = i3;
                 production_system();
                 output();
             }
@@ -217,7 +222,7 @@ public class Procedure {
     
     
     private void resetVariables(){ //puts everything to zero 
-        /* INPUT DATA RELATED TO SYSTEM JOBS */
+       /* INPUT DATA RELATED TO SYSTEM JOBS */
         for (i1 = 0; i1 < max_C; i1++)
             current_station[i1] = 0;
 
@@ -229,12 +234,6 @@ public class Procedure {
         n = 0;
         for (i1 = 0; i1 < max_nr_stations; i1++)
             n_ws[i1] = 0;
-        for(i2 = 0; i2 < max_run; i2++){
-            mean_customers_system[i2] = 0;
-            tot_n[i2] = 0;
-            for (i1 = 0; i1 < max_nr_stations; i1++)
-                tot_n_ws[i2][i1] = 0;
-        }
         
         /* PARAMETERS RELATED TO ARRIVAL OF JOBS */
         n_a = 0;
@@ -243,16 +242,6 @@ public class Procedure {
         t_lambda = 0;
         for (i1 = 0; i1 < max_nr_stations; i1++)
             n_a_ws[i1] = 0;
-        for(i2 = 0; i2 < max_run; i2++){
-            mean_interarrival_time[i2] = 0;
-            for (i6 = 0; i6 < max_AS; i6++)
-                tot_lambda[i2][i6] = 0;
-            for (i3 = 0; i3 < max_C; i3++)
-            {    time_arrival[i2][i3] = 0;
-                for (i1 = 0; i1 < max_nr_stations; i1++)
-                    time_arrival_ws[i2][i1][i3] = 0;
-            }
-        }
         for (i3 = 0; i3 < max_C; i3++){
             job_type[i3] = 0;
         }
@@ -277,53 +266,13 @@ public class Procedure {
         index_dep_server = 0;
         t_mu = 0;
         perc_fail[1] = perc_fail[2] = 0;
-        for(i2 = 0; i2 < max_run; i2++){
-            mean_service_time[i2] = 0;
-            tot_mu[i2] = 0;
-            for (i1 = 0; i1 < max_nr_stations; i1++){
-                for (i3 = 0; i3 < max_C; i3++)
-                    time_service[i2][i1][i3] = 0;
-            }
-        }
         
-        /* PARAMETERS RELATED TO waiting OF JOBS */
-        for(i2 = 0; i2 < max_run; i2++){
-            mean_waiting_time[i2] = 0;
-            waiting_time[i2] = 0;
-            mean_customers_queue[i2] = 0;
-            tot_n_queue[i2] = 0;
-            for (i1 = 0; i1 < max_nr_stations; i1++){
-                tot_n_queue_ws[i2][i1] = 0;
-                for (i3 = 0; i3 < max_C; i3++)
-                    waiting_time_job_ws[i2][i1][i3] = 0;
-            }
-        }
-
         /* VARIABLES RELATED TO Processed JOBS */
-        for(i2 = 0; i2 < max_run; i2++){
-            mean_system_time[i2] = 0;
-            for (i3 = 0; i3 < max_C; i3++){
-                time_departure[i2][i3] = 0;
-                time_system[i2][i3] = 0;
-
-                for (i1 = 0; i1 < max_nr_stations; i1++){
-                    time_departure_ws[i2][i1][i3] = 0;
-                    time_system_job_ws[i2][i1][i3] = 0;
-                }
-            }
-        }
         for (i3 = 0; i3 < max_C; i3++){
             order_out[i3] = 0;
         }
 
         /* OTHER PARAMETERS */
-        for(i2 = 0; i2 < max_run; i2++){
-            for (i3 = 0; i3 < max_nr_stations; i3++){
-                for (i1 = 0; i1 < max_S; i1++){
-                    idle[i2][i3][i1] = 0;
-                }
-            }
-        }
         rho = 0;
         for (i3 = 0; i3 < max_nr_stations; i3++){
             rho_ws[i3] = 0;
@@ -335,6 +284,7 @@ public class Procedure {
         /* DETERMINE FIRST ARRIVAL + FIRST DEPARTURE */
         
         // TO DO STUDENT    // Put all departure times for all customers to +infty
+        
         for (i1 = 0; i1 < nr_stations; i1++){
             for (i2 = 0; i2 < nr_servers[i1]; i2++){   //JUIST?
                 t_d[i1][i2] = infinity; 
@@ -367,7 +317,7 @@ public class Procedure {
             // TO DO STUDENT         // Perform simulation until prespecified (time) number of customers have departed (while loop)
              while(n_d < N){                        // As long as the number of customers departed < N, perform simulation
                 
-                                     // TO DO STUDENT        //Identify next departure event
+                // TO DO STUDENT        //Identify next departure event
                 for (i1 = 0; i1 < nr_stations; i1++){
                     for (i2 = 0; i2 < nr_servers[i1]; i2++){
                             first_td = infinity;
@@ -381,7 +331,13 @@ public class Procedure {
                 }
                
                 // TO DO STUDENT        // Identify next arrival event
-                //first_ta
+                for (int i4 = 0; i4 < max_AS; i4++){
+                    first_ta = infinity;
+                    if(t_a[i4] < first_ta){
+                    first_ta = t_a[i4];
+                    index_arr = i4;
+                    }
+                }
                 
                 // TO DO STUDENT        // Identify next event (arrival or departure)
                 
@@ -415,13 +371,11 @@ public class Procedure {
             t = first_ta;               // Increment t and jump to arrival time
             
             n++;                        //Increase the total number of jobs in the system
-            //tot_n[i3]++;               //Icrease number of customers in the system over time
-            
             n_a++;                      //Increase number of jobs arrived to the system
-            
+            n_a_ws[1]++;               //Number of jobs arrived to WS1 
             
             job_type[n_a] = index_arr;  // Type of job arriving
-            time_arrival[i3][n_a] = first_ta; //Time of arrival of the nth job for every run
+            time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
             
            
             int count = 0;
@@ -447,23 +401,23 @@ public class Procedure {
             
             if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
                 
-                time_arrival_ws[i3][1][n_a] = first_ta; //Initialize arrival time at WS1
+                time_arrival_ws[run_n][1][n_a] = first_ta; //Initialize arrival time at WS1
                 n_ws[1]++;                  //number of jobs at WS1
                 
                 //Processing of the job
                 current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
-                list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
+                
                 
                 
                 t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
-                time_service[i3][1][n_a] = t_mu;                                           // Store service time customer n_a
+                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
                 t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
-                tot_mu[i3] += t_mu;                                                        //  Update Total Service Time
+                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
                 
                 current_station[n_a] = route[0];                                                   //Current station of a job 
                 
             } else {                        //In queue
-                 n_a_ws[1]++;               //Number of jobs arrived to WS1 - queue 
+                 queue_ws[1]++;              //Number of jobs arrived to WS1 - queue 
                  
                  //current_station ?
                  
@@ -471,7 +425,7 @@ public class Procedure {
             
             // Generate interarrival time of next arrival
             for (i3 = 0; i3 < max_AS; i3++){
-            t_a[i3] = Distributions.Poisson_distribution(lambda[i3],this.random); 
+            t_a[i3] = Distributions.Exponential_distribution(lambda[i3],this.random); 
             } 
         
             // Calculate arrival time of next arrivals (t+ta)
@@ -496,6 +450,29 @@ public class Procedure {
         
         //WS1                     
         if(index_dep_station == 1){
+            n_d_ws[1]++;        //number of jobs handels at WS1
+            
+            //1. Idle maken unit eruit
+            n_ws[1]--;                  //number of jobs at WS1
+                
+                
+            current_cust[1][index_dep_server] = 0; 
+            list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
+                
+                
+                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
+                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
+                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
+                
+                current_station[n_a] = route[0];                                                   //Current station of a job 
+            
+            
+            //Units queue?
+            if(queue_ws[1] > 0){ //Process type
+                
+            }
+            
             
         }
         //WS2 - unit is processed
