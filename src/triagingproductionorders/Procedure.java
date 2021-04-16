@@ -410,17 +410,18 @@ public class Procedure {
         // TO DO STUDENT        // DEFINE ARRIVAL EVENT
         
         if(triaging == 0){  //Without triaging
+            //WS1 = route[0]
             
             t = first_ta;               // Increment t and jump to arrival time
             
             n++;                        //Increase the total number of jobs in the system
-            //tot_n[run]++;               //Icrease number of customers in the system over time
+            //tot_n[i3]++;               //Icrease number of customers in the system over time
             
             n_a++;                      //Increase number of jobs arrived to the system
             
             
             job_type[n_a] = index_arr;  // Type of job arriving
-            time_arrival[run][n_a] = first_ta; //Time of arrival of the nth job for every run
+            time_arrival[i3][n_a] = first_ta; //Time of arrival of the nth job for every run
             
            
             int count = 0;
@@ -435,7 +436,7 @@ public class Procedure {
             
             if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
                 
-                time_arrival_ws[run][1][n_a] = first_ta; //Initialize arrival time at WS1
+                time_arrival_ws[i3][1][n_a] = first_ta; //Initialize arrival time at WS1
                 n_ws[1]++;                  //number of jobs at WS1
                 
                 //Processing of the job
@@ -444,11 +445,11 @@ public class Procedure {
                 
                 
                 t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
-                time_service[run][1][n_a] = t_mu;                                           // Store service time customer n_a
+                time_service[i3][1][n_a] = t_mu;                                           // Store service time customer n_a
                 t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
-                tot_mu[run] += t_mu;                                                        //  Update Total Service Time
+                tot_mu[i3] += t_mu;                                                        //  Update Total Service Time
                 
-                current_station[n_a] = 1;                                                   //Current station of a job 
+                current_station[n_a] = route[0];                                                   //Current station of a job 
                 
             } else {                        //In queue
                  n_a_ws[1]++;               //Number of jobs arrived to WS1 - queue 
@@ -457,15 +458,17 @@ public class Procedure {
                  
             }
             
-            
-            t_a[index_arr] = Distributions.Poisson_distribution(lambda[index_arr],this.random); // Generate interarrival time of next arrival
+            // Generate interarrival time of next arrival
+            for (i3 = 0; i3 < max_AS; i3++){
+            t_a[i3] = Distributions.Poisson_distribution(lambda[i3],this.random); 
+            } 
         
             // Calculate arrival time of next arrivals
             for (i3 = 0; i3 < max_AS; i3++){
             t_a[i3] = t_a[i3] + t;
             }
                 
-            // mean_interarrival_time[run]
+            // mean_interarrival_time[i3]
             
         } else {            //With triaging
             
