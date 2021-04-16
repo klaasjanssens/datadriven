@@ -427,12 +427,22 @@ public class Procedure {
             int count = 0;
             int worker_idle = 0;
             
-            while(count == 0){
+            
             for(i1 = 0; i1 < nr_servers[1]; i1++){ //number of workers busy
-                count = current_cust[1][i1];
-                worker_idle = i1;                   //First idle worker
+                count += current_cust[1][i1];
+                                   
             }
+            
+            if(count < nr_servers[1]){
+               for(i1 = 0; i1 < nr_servers[1]; i1++){ //first idle worker
+                if(current_cust[1][i1] == 0){
+                    worker_idle = i1;
+                    break;
+                }
+                                   
+            } 
             }
+            
             
             if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
                 
@@ -440,7 +450,7 @@ public class Procedure {
                 n_ws[1]++;                  //number of jobs at WS1
                 
                 //Processing of the job
-                current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
+               //KLOPT NIET current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
                 list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
                 
                 
@@ -478,6 +488,56 @@ public class Procedure {
 
     private void departure_event(){
         // TO DO STUDENT        // DEFINE DEPARTURE EVENT
+        
+        //In which station is the departure event?
+        //WS1, WS2 or WS3?
+        
+        
+        //WS1                     
+        if(index_dep_station == 1){
+            
+        }
+        //WS2 - unit is processed
+        else if(index_dep_station == 2){
+            int WS2 = 2;
+            
+            
+            //1. Update statistics
+            n--;                        //Decrease the total number of jobs in the system
+            //tot_n[i3]--;               //Decrease number of customers in the system over time
+            
+            n_d++;                       //Update number of units departed from the system
+            t = first_td;                                            // Increment t and jump to departure time
+            
+            //2. Update waiting queue
+            if (n_a_ws[WS2] >= 1){                                    // Update total number of customers in queue of WS2
+                n_a_ws[WS2]--;                                        //Remove unit from the queue --> unit will be processed in W 
+            }
+            
+            //time_system += (t-time_arrival[n_d]);               // Update time in system (overall)
+            time_departure_ws[i3][WS2][n_d] = t;                   // Store departure time of customer n_d in WS2
+            time_departure[i3][n_d] = t;                           // Store deapurture time of customer n_d 
+             
+             
+            if (n_a_ws[WS2] == 0){                                        // Set departure time +inf if no customers are left in the queue 
+                   t_d[WS2][index_dep_server] =infinity;                    // only the server!
+                } else{
+                    t_mu = Distributions.Exponential_distribution(mu,this.random);// If there are still customers in the queue, generate service time for next customer
+                    time_service[n_d+1] = t_mu;                     // Store service for next customer
+                    t_d = t + t_mu; tot_mu += t_mu;                 // Change next departure time
+                }
+            
+            
+
+            
+        }
+        //WS0 -triaging
+        else if(index_dep_station == 0){
+            
+        }
+        
+        
+        
     }
     
     private void output() throws IOException{
