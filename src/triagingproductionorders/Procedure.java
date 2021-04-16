@@ -429,8 +429,9 @@ public class Procedure {
             
             
             for(i1 = 0; i1 < nr_servers[1]; i1++){ //number of workers busy
-                count += current_cust[1][i1];
-                                   
+               if(current_cust[1][i1] ==0){
+                count++;
+               }              
             }
             
             if(count < nr_servers[1]){
@@ -450,7 +451,7 @@ public class Procedure {
                 n_ws[1]++;                  //number of jobs at WS1
                 
                 //Processing of the job
-               //KLOPT NIET current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
+                current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
                 list_process[1][n_a] = index_arr;   //List of jobs processed at a particular WS on a particular moment in time - niet zeker aan wat gelijk
                 
                 
