@@ -517,8 +517,8 @@ public class Procedure {
                 t_d[index_dep_station][index_dep_server] = infinity;
             }
             
-            
-        }
+    
+        
         //WS2 - unit is processed
         else if(index_dep_station == 2){
             int WS2 = 2;
