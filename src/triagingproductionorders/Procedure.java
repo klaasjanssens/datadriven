@@ -463,7 +463,7 @@ public class Procedure {
             t_a[i3] = Distributions.Poisson_distribution(lambda[i3],this.random); 
             } 
         
-            // Calculate arrival time of next arrivals
+            // Calculate arrival time of next arrivals (t+ta)
             for (i3 = 0; i3 < max_AS; i3++){
             t_a[i3] = t_a[i3] + t;
             }
