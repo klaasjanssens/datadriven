@@ -462,6 +462,7 @@ public class Procedure {
             
             //2. Orders with a higher priority are processed first -- always check the queue for an arrival event
             if(n_ws[0] >= nr_servers[0]){ //There are no available servers -- unit must wait in the queue
+              
                 
             } else {                    //No units in the queue --> processed immediately   
                 time_arrival_ws[run_n][0][n_a] = first_ta; //Initialize arrival time at WS1
@@ -535,7 +536,7 @@ public class Procedure {
             int count = 0;
             int worker_idle = 0;
             n_a_ws[2]++; 
-            n_ws[2]++; //pas wnr het verwerkt wordt!
+            
             
             for(i1 = 0; i1 < nr_servers[2]; i1++){ //number of workers busy
                if(current_cust[2][i1] ==0){
@@ -554,7 +555,7 @@ public class Procedure {
             }
             
                 if(n_ws[2] < nr_servers[2]){ //Number of jobs at WS2 < number of workers at WS2 --> there is an idle worker/server
-                
+                n_ws[2]++; //pas wnr het verwerkt wordt!
                 time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]]; //Initialize arrival time at WS2
                 
                 //Processing of the job
@@ -574,7 +575,7 @@ public class Procedure {
                 while(c == 0){
                     for(int q = 0; q <queue_ws2.length;q++ ){
                         if(queue_ws2[q] ==0){
-                            queue_ws2[q] = current_cust[2][worker_idle]; 
+                            queue_ws2[q] = list_process[1][n_d_ws[1]]; 
                             c++;
                         }
                     }
