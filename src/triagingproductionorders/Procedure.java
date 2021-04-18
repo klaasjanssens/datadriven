@@ -377,7 +377,9 @@ public class Procedure {
             
             n++;                        //Increase the total number of jobs in the system
             n_a++;                      //Increase number of jobs arrived to the system
-            n_a_ws[1]++;               //Number of jobs arrived to WS1 
+            n_a_ws[1]++;                //Number of jobs arrived to WS1 
+           
+            
             
             job_type[n_a] = index_arr;  // Type of job arriving
             time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
@@ -622,38 +624,67 @@ public class Procedure {
         
         //WS2 - unit is processed
         if(index_dep_station == 2){
-            int WS2 = 2;
+            n--;                                //Decrease the total number of jobs in the system
+            n_d_ws[index_dep_station]++;        //number of jobs handled at WS2
+            t = first_td;                       //update time
+            n_d++;                              // increase total number of jobs handled
             
-           
-            //1. Update statistics
-            n--;                        //Decrease the total number of jobs in the system
-            //tot_n[i3]--;               //Decrease number of customers in the system over time
+            tot_n[run_n]--;                      //Decrease number of customers in the system over time
             
-            n_d++;                       //Update number of units departed from the system
-            t = first_td;                                            // Increment t and jump to departure time
+            //1. Idle maken unit eruit
+            n_ws[index_dep_station]--;            //number of jobs at WS2
             
-            //2. Update waiting queue
-            if (n_a_ws[WS2] >= 1){                                    // Update total number of customers in queue of WS2
-                n_a_ws[WS2]--;                                        //Remove unit from the queue --> unit will be processed in W 
+            //List of jobs processed at a particular WS on a particular moment in time 
+            list_process[2][n_d_ws[index_dep_station]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan            
+            current_cust[2][index_dep_server] = 0; 
+            
+            //2. Processed 
+            time_departure_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t; //Save departure time ws
+                //Time in WS2
+            time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
+                //Waiting time queue WS1
+            waiting_time_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] - time_arrival[run_n][n_d_ws[2]];
+                //Departure Time from system
+            time_departure[i3][n_d] = t;                           
+            
+            //3. Units queue?
+            
+            if( queue_ws2_counter > 0){ //Start processing of next unit in WS1
+                int next_arrival = 0;
+                
+                queue_ws2_counter--;
+                next_arrival = queue_ws2[0];
+                
+                
+                for(int q = 1; q <queue_ws2.length;q++ ){
+                    queue_ws2[q-1] = queue_ws2[q];
+                    }
+                
+            
+                //Last post fill again
+                queue_ws2[max_C - 1] =0;
+                
+                //Processing in WS2
+                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS2
+                n_ws[2]++;                  //number of jobs at WS2
+                
+                //Processing of the job
+                current_cust[index_dep_station][index_dep_server] = next_arrival; //Customer handels by WS2 and the idle worker 
+                
+                t_mu = Distributions.Exponential_distribution(mu[index_dep_station][job_type[next_arrival]],this.random);// Generate service time
+                time_service[run_n][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
+                t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
+                tot_mu[run_n] += t_mu;                                                                                  //  Update Total Service Time
+                
+                //current_station[next_arrival] = route[0];                                                               //Current station of a job 
+            }   
+             else {
+                t_d[index_dep_station][index_dep_server] = infinity;
             }
-            
-            //time_system += (t-time_arrival[n_d]);               // Update time in system (overall)
-            time_departure_ws[i3][WS2][n_d] = t;                   // Store departure time of customer n_d in WS2
-            time_departure[i3][n_d] = t;                           // Store deapurture time of customer n_d 
-             
-             
-            if (n_a_ws[WS2] == 0){                                        // Set departure time +inf if no customers are left in the queue 
-                   t_d[WS2][index_dep_server] =infinity;                    // only the server!
-                } else{
-                    t_mu = Distributions.Exponential_distribution(mu,this.random);// If there are still customers in the queue, generate service time for next customer
-                    time_service[n_d+1] = t_mu;                     // Store service for next customer
-                    t_d = t + t_mu; tot_mu += t_mu;                 // Change next departure time
-                }
-            
-            
-
-            
+           
         }
+        
+        
         //WS0 -triaging
         else if(index_dep_station == 0){
             
