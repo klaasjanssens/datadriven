@@ -465,7 +465,7 @@ public class Procedure {
         if(index_dep_station == 1){
            
             
-            n_d_ws[index_dep_station]++;        //number of jobs handels at WS1
+            n_d_ws[index_dep_station]++;        //number of jobs handeled at WS1
             t = first_td;                       //update time
             
             //1. Idle maken unit eruit
@@ -511,28 +511,28 @@ public class Procedure {
                 
                 //Processing of the job
                 current_cust[2][worker_idle] = list_process[1][n_d_ws[1]]; //Customer handels by WS1 and the idle worker 
-                
+                index_arr= job_type[current_cust[2][worker_idle]];
                 
   
-                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
-                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
-                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                t_mu = Distributions.Exponential_distribution(mu[2][index_arr],this.random);// Generate service time
+                time_service[run_n][2][current_cust[2][worker_idle]] = t_mu;                                           // Store service time customer n_a
+                t_d[2][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
                 
-                current_station[n_a] = route[0];                                                   //Current station of a job 
+                current_station[current_cust[2][worker_idle]] = route[1];                                                   //Current station of a job 
                 
             } else {                        //In queue
                 //Add unit to queue
                 int c = 0;
                 while(c == 0){
-                    for(int q = 0; q <queue_ws1.length;q++ ){
-                        if(queue_ws1[q] ==0){
-                            queue_ws1[q] = n_a;
+                    for(int q = 0; q <queue_ws2.length;q++ ){
+                        if(queue_ws2[q] ==0){
+                            queue_ws2[q] = current_cust[2][worker_idle];
                             c++;
                         }
                     }
                 }
-                queue_ws1_counter++;
+                queue_ws2_counter++;
                 
             }
             //4. Units queue?
@@ -573,10 +573,10 @@ public class Procedure {
     
         
         //WS2 - unit is processed
-        else if(index_dep_station == 2){
+        if(index_dep_station == 2){
             int WS2 = 2;
             
-            
+           
             //1. Update statistics
             n--;                        //Decrease the total number of jobs in the system
             //tot_n[i3]--;               //Decrease number of customers in the system over time
