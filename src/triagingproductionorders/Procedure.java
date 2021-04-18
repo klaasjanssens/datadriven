@@ -450,8 +450,57 @@ public class Procedure {
             
         } else {            //With triaging
             
+            //1. Adjust the statistics for an arrival of a unit in the system 
+            t = first_ta;               // Increment t and jump to arrival time
+            
+            n++;                        //Increase the total number of jobs in the system
+            n_a++;                      //Increase number of jobs arrived to the system
+            n_a_ws[1]++;               //Number of jobs arrived to WS1 
+            
+            job_type[n_a] = index_arr;  // Type of job arriving
+            time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
+            
+            //2. Orders with a higher priority are processed first -- always check the queue for an arrival event
+            if(n_ws[0] >= nr_servers[0]){ //There are no available servers -- unit must wait in the queue
+              
+                
+            } else {                    //No units in the queue --> processed immediately   
+                time_arrival_ws[run_n][0][n_a] = first_ta; //Initialize arrival time at WS1
+                n_ws[0]++;                                  //number of jobs at WS1
+                
+                //Processing of the job
+                    //Check for an available worker
+                    int count = 0;
+                    int worker_idle = 0;
+            
+            
+                    for(i1 = 0; i1 < nr_servers[0]; i1++){ //number of workers busy
+                        if(current_cust[0][i1] ==0){
+                            count++;
+                        }              
+                    }
+            
+                    if(count < nr_servers[0]){
+                        for(i1 = 0; i1 < nr_servers[0]; i1++){ //first idle worker
+                             if(current_cust[0][i1] == 0){
+                                worker_idle = i1;
+                                break;
+                            }
+                                   
+                        } 
+                    }
+                current_cust[0][worker_idle] = n_a; //Customer handels by WS0 and the idle worker 
+                
+                
+                
+                t_mu = Distributions.Exponential_distribution(mu[0][index_arr],this.random);// Generate service time
+                time_service[run_n][0][n_a] = t_mu;                                           // Store service time customer n_a
+                t_d[0][worker_idle] = t + t_mu;                                             // Generate departure time
+                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
+                
+                //current_station[n_a] = route[0];                                                   //Current station of a job 
+            }
         }
-        
     }
 
     private void departure_event(){
@@ -487,7 +536,7 @@ public class Procedure {
             int count = 0;
             int worker_idle = 0;
             n_a_ws[2]++; 
-            n_ws[2]++;
+            
             
             for(i1 = 0; i1 < nr_servers[2]; i1++){ //number of workers busy
                if(current_cust[2][i1] ==0){
@@ -506,7 +555,7 @@ public class Procedure {
             }
             
                 if(n_ws[2] < nr_servers[2]){ //Number of jobs at WS2 < number of workers at WS2 --> there is an idle worker/server
-                
+                n_ws[2]++; //pas wnr het verwerkt wordt!
                 time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]]; //Initialize arrival time at WS2
                 
                 //Processing of the job
@@ -526,7 +575,7 @@ public class Procedure {
                 while(c == 0){
                     for(int q = 0; q <queue_ws2.length;q++ ){
                         if(queue_ws2[q] ==0){
-                            queue_ws2[q] = current_cust[2][worker_idle];
+                            queue_ws2[q] = list_process[1][n_d_ws[1]]; 
                             c++;
                         }
                     }
