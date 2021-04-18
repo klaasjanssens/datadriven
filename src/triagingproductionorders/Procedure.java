@@ -484,9 +484,57 @@ public class Procedure {
             
             //3. Departure WS1 = Arrival WS2
                 //1. Check if there is an idle worker in WS2 --> unit will be processed immediately
-                
-                //2. if therye is no idle worker --> add unit to the queue of WS2
+            int count = 0;
+            int worker_idle = 0;
+            n_a_ws[2]++; 
+            n_ws[2]++;
             
+            for(i1 = 0; i1 < nr_servers[2]; i1++){ //number of workers busy
+               if(current_cust[2][i1] ==0){
+                count++;
+               }              
+            }
+            
+            if(count < nr_servers[2]){
+               for(i1 = 0; i1 < nr_servers[1]; i1++){ //first idle worker
+                if(current_cust[2][i1] == 0){
+                    worker_idle = i1;
+                    break;
+                }
+                                   
+                } 
+            }
+            
+                if(n_ws[2] < nr_servers[2]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
+                
+                time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]]; //Initialize arrival time at WS2
+                
+                //Processing of the job
+                current_cust[2][worker_idle] = list_process[1][n_d_ws[1]]; //Customer handels by WS1 and the idle worker 
+                
+                
+  
+                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
+                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
+                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
+                
+                current_station[n_a] = route[0];                                                   //Current station of a job 
+                
+            } else {                        //In queue
+                //Add unit to queue
+                int c = 0;
+                while(c == 0){
+                    for(int q = 0; q <queue_ws1.length;q++ ){
+                        if(queue_ws1[q] ==0){
+                            queue_ws1[q] = n_a;
+                            c++;
+                        }
+                    }
+                }
+                queue_ws1_counter++;
+                
+            }
             //4. Units queue?
             
             if( queue_ws1_counter > 0){ //Start processing of next unit in WS1
