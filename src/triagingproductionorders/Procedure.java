@@ -509,7 +509,7 @@ public class Procedure {
             }
             
             if(count < nr_servers[2]){
-               for(i1 = 0; i1 < nr_servers[1]; i1++){ //first idle worker
+               for(i1 = 0; i1 < nr_servers[2]; i1++){ //first idle worker
                 if(current_cust[2][i1] == 0){
                     worker_idle = i1;
                     break;
@@ -586,41 +586,191 @@ public class Procedure {
         
         //WS2 - unit is processed
         if(index_dep_station == 2){
-            int WS2 = 2;
+            n--;                                //Decrease the total number of jobs in the system
+            n_d_ws[index_dep_station]++;        //number of jobs handled at WS2
+            t = first_td;                       //update time
+            n_d++;                              // increase total number of jobs handled
             
-           
-            //1. Update statistics
-            n--;                        //Decrease the total number of jobs in the system
-            //tot_n[i3]--;               //Decrease number of customers in the system over time
+            tot_n[run_n]--;                      //Decrease number of customers in the system over time
             
-            n_d++;                       //Update number of units departed from the system
-            t = first_td;                                            // Increment t and jump to departure time
+            //1. Idle maken unit eruit
+            n_ws[index_dep_station]--;            //number of jobs at WS2
             
-            //2. Update waiting queue
-            if (n_a_ws[WS2] >= 1){                                    // Update total number of customers in queue of WS2
-                n_a_ws[WS2]--;                                        //Remove unit from the queue --> unit will be processed in W 
+            //List of jobs processed at a particular WS on a particular moment in time 
+            list_process[2][n_d_ws[index_dep_station]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan            
+            current_cust[2][index_dep_server] = 0; 
+            
+            //2. Processed 
+            time_departure_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t; //Save departure time ws
+                //Time in WS2
+            time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
+                //Waiting time queue WS1
+            waiting_time_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] - time_arrival[run_n][n_d_ws[2]];
+                //Departure Time from system
+            time_departure[i3][n_d] = t;                           
+            
+            //3. Units queue?
+            
+            if( queue_ws2_counter > 0){ //Start processing of next unit in WS1
+                int next_arrival = 0;
+                
+                queue_ws2_counter--;
+                next_arrival = queue_ws2[0];
+                
+                
+                for(int q = 1; q <queue_ws2.length;q++ ){
+                    queue_ws2[q-1] = queue_ws2[q];
+                    }
+                
+            
+                //Last post fill again
+                queue_ws2[max_C - 1] =0;
+                
+                //Processing in WS2
+                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS2
+                n_ws[2]++;                  //number of jobs at WS2
+                
+                //Processing of the job
+                current_cust[index_dep_station][index_dep_server] = next_arrival; //Customer handels by WS2 and the idle worker 
+                
+                t_mu = Distributions.Exponential_distribution(mu[index_dep_station][job_type[next_arrival]],this.random);// Generate service time
+                time_service[run_n][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
+                t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
+                tot_mu[run_n] += t_mu;                                                                                  //  Update Total Service Time
+                
+                //current_station[next_arrival] = route[0];                                                               //Current station of a job 
+            }   
+             else {
+                t_d[index_dep_station][index_dep_server] = infinity;
             }
-            
-            //time_system += (t-time_arrival[n_d]);               // Update time in system (overall)
-            time_departure_ws[i3][WS2][n_d] = t;                   // Store departure time of customer n_d in WS2
-            time_departure[i3][n_d] = t;                           // Store deapurture time of customer n_d 
-             
-             
-            if (n_a_ws[WS2] == 0){                                        // Set departure time +inf if no customers are left in the queue 
-                   t_d[WS2][index_dep_server] =infinity;                    // only the server!
-                } else{
-                    t_mu = Distributions.Exponential_distribution(mu,this.random);// If there are still customers in the queue, generate service time for next customer
-                    time_service[n_d+1] = t_mu;                     // Store service for next customer
-                    t_d = t + t_mu; tot_mu += t_mu;                 // Change next departure time
-                }
-            
-            
-
-            
+           
         }
+        
+        
         //WS0 -triaging
         else if(index_dep_station == 0){
+             
+            n_d_ws[index_dep_station]++;        //number of jobs handeled at WS0
+            t = first_td;                       //update time
             
+            //1. Idle maken unit eruit
+            n_ws[index_dep_station]--;                  //number of jobs at WS1
+            
+            //List of jobs processed at a particular WS on a particular moment in time 
+            list_process[0][n_d_ws[0]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan            
+            current_cust[index_dep_station][index_dep_server] = 0; 
+            
+            //2. Processed 
+            time_departure_ws[run_n][index_dep_station][list_process[index_dep_station][n_d_ws[index_dep_station]]] = t; //Save departure time ws
+                //Time in WS1 
+            time_system_job_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]];
+                //Waiting time queue WS1
+            waiting_time_job_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] = time_arrival_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] - time_arrival[run_n][n_d_ws[0]];
+            
+            //3. Departure WS0 = Arrival WS1
+                //1. The units in the queue of WS1 must be ordered -- no longer FIFO
+                
+                if(queue_ws1_counter == 0){ //There are no units in the queue 
+                    n_a_ws[1]++;            //Unit arrives in WS1
+                    
+                    if(n_ws[1] < nr_servers[1]){    //1. There is an idle server in WS1 -- unit can be processed immediately in WS1
+                        
+                        n_ws[1]++;          //unit will be processed in WS1
+                        int count = 0;
+                        int worker_idle = 0;
+            
+                        for(i1 = 0; i1 < nr_servers[1]; i1++){ //number of workers busy
+                            if(current_cust[1][i1] ==0){
+                                count++;
+                            }              
+                        }
+            
+                        if(count < nr_servers[1]){
+                            for(i1 = 0; i1 < nr_servers[1]; i1++){ //first idle worker
+                                if(current_cust[1][i1] == 0){
+                                    worker_idle = i1;
+                                    break;
+                                }
+                                   
+                            } 
+                        }
+                        
+                        
+                    time_arrival_ws[run_n][1][list_process[0][n_d_ws[0]]] = time_departure_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]]; //Initialize arrival time at WS2
+                
+                    //Processing of the job
+                    current_cust[1][worker_idle] = list_process[0][n_d_ws[0]]; //Customer handeled by WS2 and the idle worker 
+                    index_arr= job_type[current_cust[1][worker_idle]];
+                
+  
+                    t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
+                    time_service[run_n][1][current_cust[1][worker_idle]] = t_mu;                 // Store service time customer n_a
+                    t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                    tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
+                
+                    //current_station[current_cust[1][worker_idle]] = route[1];                       //Current station of a job 
+                        
+                        
+                    } else {                        //2. The unit has to be added to the queue of WS1, because there is no idle server                        
+                        int c = 0;
+                        while(c == 0){
+                            for(int q = 0; q <queue_ws1.length;q++ ){
+                                    if(queue_ws1[q] ==0){
+                                    queue_ws1[q] = list_process[0][n_d_ws[0]]; 
+                                    c++;
+                                    }
+                            }
+                        }
+                        queue_ws2_counter++;
+                
+                    }
+                    } else {            //There are units in the queue -- order per category 
+                    
+                    int[] waiting_queue = new int [queue_ws1_counter]; //job types per unit 
+                    
+                    for(i3 = 0 ; i3 < queue_ws1_counter ; i3++){                        
+                           waiting_queue[i3] = job_type[queue_ws1[i3]]; 
+                    }
+                    
+                }
+                
+            
+            //4. Units queue?
+            
+            if( queue_ws0_counter > 0){ //Start processing of next unit in WS1
+                int next_arrival = 0;
+                          
+                queue_ws0_counter--;
+                next_arrival = queue_ws0[0];
+                
+                
+                for(int q = 1; q <queue_ws0.length;q++ ){
+                    queue_ws0[q-1] = queue_ws0[q];
+                    }
+                
+            
+                //Last post fill again
+                queue_ws0[max_C - 1] =0;
+                
+                //Processing in WS1
+                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS1
+                n_ws[0]++;                  //number of jobs at WS1
+                
+                //Processing of the job
+                current_cust[index_dep_station][index_dep_server] = next_arrival; //Customer handels by WS1 and the idle worker 
+                
+                t_mu = Distributions.Exponential_distribution(mu[index_dep_station][job_type[next_arrival]],this.random);// Generate service time
+                time_service[run_n][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
+                t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
+                tot_mu[run_n] += t_mu;                                                                                  //  Update Total Service Time
+                
+                //current_station[next_arrival] = route[0];                                                               //Current station of a job 
+            }   
+             else {
+                t_d[index_dep_station][index_dep_server] = infinity;
+            }
+            
+    
         }
         
         
