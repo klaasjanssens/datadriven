@@ -369,33 +369,37 @@ public class Procedure {
     
     private void arrival_event(){
         // TO DO STUDENT        // DEFINE ARRIVAL EVENT
+        //if triaging --> WS0 : route[0] = 0
+        //if no triaging ==>  WS1 : route[0] = 1
         
-        if(triaging == 0){  //Without triaging
-            //WS1 = route[0]
-            
+        
+        //1. Adjust the statistics for an arrival of a unit in the system 
             t = first_ta;               // Increment t and jump to arrival time
             
             n++;                        //Increase the total number of jobs in the system
             n_a++;                      //Increase number of jobs arrived to the system
-            n_a_ws[1]++;               //Number of jobs arrived to WS1 
+            n_a_ws[route[0]]++;               //Number of jobs arrived to WS0 or WS1 
+            tot_n[run_n]++;
             
             job_type[n_a] = index_arr;  // Type of job arriving
             time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
             
-           
+        //2. Arrived unit processed immediately or added to the queue?
+        
+            
             int count = 0;
             int worker_idle = 0;
             
             
-            for(i1 = 0; i1 < nr_servers[1]; i1++){ //number of workers busy
-               if(current_cust[1][i1] ==0){
+            for(i1 = 0; i1 < nr_servers[route[0]]; i1++){ //number of workers busy
+               if(current_cust[route[0]][i1] ==0){
                 count++;
                }              
             }
             
-            if(count < nr_servers[1]){
-               for(i1 = 0; i1 < nr_servers[1]; i1++){ //first idle worker
-                if(current_cust[1][i1] == 0){
+            if(count < nr_servers[route[0]]){
+               for(i1 = 0; i1 < nr_servers[route[0]]; i1++){ //first idle worker
+                if(current_cust[route[0]][i1] == 0){
                     worker_idle = i1;
                     break;
                 }
@@ -404,25 +408,26 @@ public class Procedure {
             }
             
             
-            if(n_ws[1] < nr_servers[1]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
+            if(n_ws[route[0]] < nr_servers[route[0]]){ //Number of jobs at WS < number of workers at WS --> there is an idle worker/server
                 
-                time_arrival_ws[run_n][1][n_a] = first_ta; //Initialize arrival time at WS1
-                n_ws[1]++;                  //number of jobs at WS1
+                time_arrival_ws[run_n][route[0]][n_a] = first_ta; //Initialize arrival time at WS1
+                n_ws[route[0]]++;                  //number of jobs at WS0 or WS1
                 
                 //Processing of the job
-                current_cust[1][worker_idle] = n_a; //Customer handels by WS1 and the idle worker 
+                current_cust[route[0]][worker_idle] = n_a; //Customer handels by WS and the idle worker 
                 
                 
                 
-                t_mu = Distributions.Exponential_distribution(mu[1][index_arr],this.random);// Generate service time
-                time_service[run_n][1][n_a] = t_mu;                                           // Store service time customer n_a
-                t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
+                t_mu = Distributions.Exponential_distribution(mu[route[0]][index_arr],this.random);// Generate service time
+                time_service[run_n][route[0]][n_a] = t_mu;                                           // Store service time customer n_a
+                t_d[route[0]][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
                 
-                //current_station[n_a] = route[0];                                                   //Current station of a job 
+                //current_station[n_a] = route[triaging];                                                   //Current station of a job 
                 
-            } else {                        //In queue
+            } else {                                //There are no available servers -- unit must wait in the queue
                 //Add unit to queue
+                if(triaging == 0){                  //Start in WS1
                 int c = 0;
                 while(c == 0){
                     for(int q = 0; q <queue_ws1.length;q++ ){
@@ -433,7 +438,18 @@ public class Procedure {
                     }
                 }
                 queue_ws1_counter++;
-                
+                } else{                             //Start in WS0
+                    int c = 0;
+                while(c == 0){
+                    for(int q = 0; q <queue_ws0.length;q++ ){
+                        if(queue_ws0[q] ==0){
+                            queue_ws0[q] = n_a;
+                            c++;
+                        }
+                    }
+                }
+                queue_ws0_counter++;
+                }
             }
             
             // Generate interarrival time of next arrival
@@ -448,59 +464,7 @@ public class Procedure {
                 
             // mean_interarrival_time[i3]
             
-        } else {            //With triaging
-            
-            //1. Adjust the statistics for an arrival of a unit in the system 
-            t = first_ta;               // Increment t and jump to arrival time
-            
-            n++;                        //Increase the total number of jobs in the system
-            n_a++;                      //Increase number of jobs arrived to the system
-            n_a_ws[1]++;               //Number of jobs arrived to WS1 
-            
-            job_type[n_a] = index_arr;  // Type of job arriving
-            time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
-            
-            //2. Orders with a higher priority are processed first -- always check the queue for an arrival event
-            if(n_ws[0] >= nr_servers[0]){ //There are no available servers -- unit must wait in the queue
-              
-                
-            } else {                    //No units in the queue --> processed immediately   
-                time_arrival_ws[run_n][0][n_a] = first_ta; //Initialize arrival time at WS1
-                n_ws[0]++;                                  //number of jobs at WS1
-                
-                //Processing of the job
-                    //Check for an available worker
-                    int count = 0;
-                    int worker_idle = 0;
-            
-            
-                    for(i1 = 0; i1 < nr_servers[0]; i1++){ //number of workers busy
-                        if(current_cust[0][i1] ==0){
-                            count++;
-                        }              
-                    }
-            
-                    if(count < nr_servers[0]){
-                        for(i1 = 0; i1 < nr_servers[0]; i1++){ //first idle worker
-                             if(current_cust[0][i1] == 0){
-                                worker_idle = i1;
-                                break;
-                            }
-                                   
-                        } 
-                    }
-                current_cust[0][worker_idle] = n_a; //Customer handels by WS0 and the idle worker 
-                
-                
-                
-                t_mu = Distributions.Exponential_distribution(mu[0][index_arr],this.random);// Generate service time
-                time_service[run_n][0][n_a] = t_mu;                                           // Store service time customer n_a
-                t_d[0][worker_idle] = t + t_mu;                                             // Generate departure time
-                tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
-                
-                //current_station[n_a] = route[0];                                                   //Current station of a job 
-            }
-        }
+       
     }
 
     private void departure_event(){
