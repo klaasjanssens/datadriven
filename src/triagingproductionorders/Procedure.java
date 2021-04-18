@@ -419,7 +419,7 @@ public class Procedure {
                 t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
                 
-                current_station[n_a] = route[0];                                                   //Current station of a job 
+                //current_station[n_a] = route[0];                                                   //Current station of a job 
                 
             } else {                        //In queue
                 //Add unit to queue
@@ -563,12 +563,12 @@ public class Procedure {
                 t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
                 tot_mu[run_n] += t_mu;                                                                                  //  Update Total Service Time
                 
-                current_station[next_arrival] = route[0];                                                               //Current station of a job 
+                //current_station[next_arrival] = route[0];                                                               //Current station of a job 
             }   
-            } else {
+             else {
                 t_d[index_dep_station][index_dep_server] = infinity;
             }
-            
+        }    
     
         
         //WS2 - unit is processed
