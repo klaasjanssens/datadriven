@@ -505,24 +505,23 @@ public class Procedure {
                 } 
             }
             
-                if(n_ws[2] < nr_servers[2]){ //Number of jobs at WS1 < number of workers at WS1 --> there is an idle worker/server
+                if(n_ws[2] < nr_servers[2]){ //Number of jobs at WS2 < number of workers at WS2 --> there is an idle worker/server
                 
                 time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]]; //Initialize arrival time at WS2
                 
                 //Processing of the job
-                current_cust[2][worker_idle] = list_process[1][n_d_ws[1]]; //Customer handels by WS1 and the idle worker 
+                current_cust[2][worker_idle] = list_process[1][n_d_ws[1]]; //Customer handeled by WS2 and the idle worker 
                 index_arr= job_type[current_cust[2][worker_idle]];
                 
   
                 t_mu = Distributions.Exponential_distribution(mu[2][index_arr],this.random);// Generate service time
-                time_service[run_n][2][current_cust[2][worker_idle]] = t_mu;                                           // Store service time customer n_a
+                time_service[run_n][2][current_cust[2][worker_idle]] = t_mu;                 // Store service time customer n_a
                 t_d[2][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
                 
-                current_station[current_cust[2][worker_idle]] = route[1];                                                   //Current station of a job 
+                current_station[current_cust[2][worker_idle]] = route[1];                       //Current station of a job 
                 
-            } else {                        //In queue
-                //Add unit to queue
+            } else {  //Add unit to queue
                 int c = 0;
                 while(c == 0){
                     for(int q = 0; q <queue_ws2.length;q++ ){
