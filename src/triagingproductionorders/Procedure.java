@@ -726,11 +726,68 @@ public class Procedure {
                     }
                     } else {            //There are units in the queue -- order per category 
                     
-                    int[] waiting_queue = new int [queue_ws1_counter]; //job types per unit 
+                    int[] waiting_type = new int [queue_ws1_counter]; //job types per unit 
+                    int[] waiting_unit = new int [queue_ws1_counter];
+                    
+                    int[] waiting_type_ordered = new int [queue_ws1_counter +1]; //job types per unit 
+                    int[] waiting_unit_ordered = new int [queue_ws1_counter+1 ];
+                    
+                    //New unit
+                    int category = job_type[list_process[0][n_d_ws[0]]];
+                    int n_aNEW = list_process[0][n_d_ws[0]];
                     
                     for(i3 = 0 ; i3 < queue_ws1_counter ; i3++){                        
-                           waiting_queue[i3] = job_type[queue_ws1[i3]]; 
+                           waiting_type[i3] = job_type[queue_ws1[i3]];  //JOB TYPES OF UNITS IN QUEUE
+                           waiting_unit[i3] = queue_ws1[i3];            //UNITS IN THE QUEUE
                     }
+                    
+                    
+        
+        
+                    if(category >= waiting_type[queue_ws1_counter -1]){ //Category is worse or equal, just add unit at the end of the queue 
+                        waiting_type_ordered[queue_ws1_counter] = category;
+                        waiting_unit_ordered[queue_ws1_counter] = n_aNEW;
+           
+                    for(int i = 0; i < queue_ws1_counter; i++){
+                            waiting_type_ordered[i] = waiting_type[i];
+                            waiting_unit_ordered[i] = waiting_unit[i];
+                    }
+           
+                            //System.out.println("end queue");
+                    }else {                        //Category is better - where to add ?
+                        int index = 0;
+           
+                        for(int i = 0; i < queue_ws1_counter; i++){
+                            if(category >= waiting_type[i]){
+                                index++; //Place of new unit 
+                                System.out.println("place new unit " + index);
+                            }    
+                        }
+           
+                        //read units before the new unit
+                        for(int i = 0; i < index; i++){
+                            waiting_type_ordered[i] = waiting_type[i];
+                            waiting_unit_ordered[i] = waiting_unit[i];
+                        }
+                        //read in the new unit
+                        waiting_type_ordered[index] = category;
+                            waiting_unit_ordered[index] = n_aNEW;
+                        //read in untis after the new unit 
+                        for(int i = index; i < queue_ws1_counter; i ++){
+                            waiting_type_ordered[i+1] = waiting_type[i];
+                            waiting_unit_ordered[i+1] = waiting_unit[i];
+                        }
+
+                    }
+        
+                    
+                    //Read into the queue of ws1!!
+                    queue_ws1_counter++;
+                    
+                    for(i3 = 0 ; i3 < queue_ws1_counter ; i3++){                        
+                        queue_ws1[i3] = waiting_unit_ordered[i3];
+                    }
+                    
                     
                 }
                 
