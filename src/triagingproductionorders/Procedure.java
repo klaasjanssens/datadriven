@@ -135,7 +135,7 @@ public class Procedure {
         nr_stations = 3;
         nr_servers[0] = 2;
         nr_servers[1] = 1;
-        nr_servers[2] = 2;
+        nr_servers[2] = 1;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
@@ -568,7 +568,7 @@ public class Procedure {
         }
 
         //WS2 - unit is processed
-        if (index_dep_station == 2) {
+       else if (index_dep_station == 2) {
             n--;                                //Decrease the total number of jobs in the system
             n_d_ws[index_dep_station]++;        //number of jobs handled at WS2
             t = first_td;                       //update time
@@ -591,7 +591,7 @@ public class Procedure {
             time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
            
             //Departure Time from system
-            time_departure[i3][n_d] = t;
+            time_departure[i3][list_process[2][n_d_ws[index_dep_station]]] = t;
 
             //3. Units queue?
             if (queue_ws2_counter > 0) { //Start processing of next unit in WS1
@@ -642,9 +642,10 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[index_dep_station][n_d_ws[index_dep_station]]] = t; //Save departure time ws
             //Time in WS1 
             time_system_job_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]];
-            //Waiting time queue WS1
-            waiting_time_job_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] = time_arrival_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] - time_arrival[run_n][n_d_ws[0]];
-
+            
+            
+            time_arrival_ws[run_n][1][list_process[0][n_d_ws[0]]] = time_departure_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]];
+            
             //3. Departure WS0 = Arrival WS1
             //1. The units in the queue of WS1 must be ordered -- no longer FIFO
             if (queue_ws1_counter == 0) { //There are no units in the queue 
@@ -672,7 +673,7 @@ public class Procedure {
                         }
                     }
 
-                    time_arrival_ws[run_n][1][list_process[0][n_d_ws[0]]] = time_departure_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]]; //Initialize arrival time at WS2
+                     //Initialize arrival time at WS2
 
                     //Processing of the job
                     current_cust[1][worker_idle] = list_process[0][n_d_ws[0]]; //Customer handeled by WS2 and the idle worker 
@@ -694,7 +695,8 @@ public class Procedure {
                             }
                         }
                     }
-                    queue_ws2_counter++;
+                    queue_ws1_counter++;
+                    tot_n_queue_ws[run_n][1]++;
 
                 }
             } else {            //There are units in the queue -- order per category 
@@ -752,6 +754,7 @@ public class Procedure {
 
                 //Read into the queue of ws1!!
                 queue_ws1_counter++;
+                tot_n_queue_ws[run_n][1]++;
 
                 for (i3 = 0; i3 < queue_ws1_counter; i3++) {
                     queue_ws1[i3] = waiting_unit_ordered[i3];
@@ -764,6 +767,7 @@ public class Procedure {
                 int next_arrival = 0;
 
                 queue_ws0_counter--;
+                tot_n_queue_ws[run_n][1]--;
                 next_arrival = queue_ws0[0];
 
                 for (int q = 1; q < queue_ws0.length; q++) {
@@ -774,7 +778,7 @@ public class Procedure {
                 queue_ws0[max_C - 1] = 0;
 
                 //Processing in WS1
-                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS1
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[0]++;                  //number of jobs at WS1
 
                 //Processing of the job
