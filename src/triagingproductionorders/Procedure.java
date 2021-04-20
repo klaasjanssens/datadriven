@@ -423,6 +423,7 @@ public class Procedure {
                     }
                 }
                 queue_ws1_counter++;
+                tot_n_queue_ws[run_n][route[0]]++;
             } else {                             //Start in WS0
                 int c = 0;
                 while (c == 0) {
@@ -434,6 +435,7 @@ public class Procedure {
                     }
                 }
                 queue_ws0_counter++;
+                tot_n_queue_ws[run_n][route[0]]++;
             }
         }
 
@@ -526,6 +528,7 @@ public class Procedure {
                     }
                 
                 queue_ws2_counter++;
+                tot_n_queue_ws[run_n][2]++;
 
             }
             //4. Units queue?
@@ -534,6 +537,7 @@ public class Procedure {
                 int next_arrival = 0;
 
                 queue_ws1_counter--;
+                tot_n_queue_ws[run_n][1]--;
                 next_arrival = queue_ws1[0];
 
                 for (int q = 1; q < queue_ws1.length; q++) {
@@ -569,7 +573,9 @@ public class Procedure {
             n_d_ws[index_dep_station]++;        //number of jobs handled at WS2
             t = first_td;                       //update time
             n_d++;                              // increase total number of jobs handled
-
+            n_d_as[job_type[current_cust[index_dep_station][index_dep_server]]]++;
+            
+            
             tot_n[run_n]--;                      //Decrease number of customers in the system over time
 
             //1. Idle maken unit eruit
@@ -583,8 +589,7 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t; //Save departure time ws
             //Time in WS2
             time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
-            //Waiting time queue WS1
-            waiting_time_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] - time_arrival[run_n][n_d_ws[2]];
+           
             //Departure Time from system
             time_departure[i3][n_d] = t;
 
@@ -593,6 +598,7 @@ public class Procedure {
                 int next_arrival = 0;
 
                 queue_ws2_counter--;
+                tot_n_queue_ws[run_n][2]--;
                 next_arrival = queue_ws2[0];
 
                 for (int q = 1; q < queue_ws2.length; q++) {
@@ -603,7 +609,7 @@ public class Procedure {
                 queue_ws2[max_C - 1] = 0;
 
                 //Processing in WS2
-                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS2
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[2]++;                  //number of jobs at WS2
 
                 //Processing of the job
