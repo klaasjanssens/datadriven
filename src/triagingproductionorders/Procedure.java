@@ -134,8 +134,8 @@ public class Procedure {
         /* INPUT DATA RELATED TO PRODUCTION DPT */
         nr_stations = 3;
         nr_servers[0] = 2;
-        nr_servers[1] = 5;
-        nr_servers[2] = 5;
+        nr_servers[1] = 1;
+        nr_servers[2] = 2;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
@@ -370,18 +370,19 @@ public class Procedure {
 
         job_type[n_a] = index_arr;  // Type of job arriving
         time_arrival[run_n][n_a] = first_ta; //Time of arrival of the nth job for every run
+        time_arrival_ws[run_n][route[0]][n_a] = first_ta; //Initialize arrival time at WS1
 
         //2. Arrived unit processed immediately or added to the queue?
         int count = 0;
         int worker_idle = 0;
 
         for (i1 = 0; i1 < nr_servers[route[0]]; i1++) { //number of workers busy
-            if (current_cust[route[0]][i1] == 0) {
+            if (current_cust[route[0]][i1] != 0) {
                 count++;
             }
         }
 
-        if (count < nr_servers[route[0]]) {
+        if (count < nr_servers[route[0]] ) {
             for (i1 = 0; i1 < nr_servers[route[0]]; i1++) { //first idle worker
                 if (current_cust[route[0]][i1] == 0) {
                     worker_idle = i1;
@@ -392,8 +393,8 @@ public class Procedure {
         }
 
         if (n_ws[route[0]] < nr_servers[route[0]]) { //Number of jobs at WS < number of workers at WS --> there is an idle worker/server
-
-            time_arrival_ws[run_n][route[0]][n_a] = first_ta; //Initialize arrival time at WS1
+            
+            
             n_ws[route[0]]++;                  //number of jobs at WS0 or WS1
 
             //Processing of the job
@@ -409,12 +410,16 @@ public class Procedure {
             //Add unit to queue
             if (triaging == 0) {                  //Start in WS1
                 int c = 0;
-                while (c == 0) {
+                
+               
                     for (int q = 0; q < queue_ws1.length; q++) {
-                        if (queue_ws1[q] == 0) {
-                            queue_ws1[q] = n_a;
-                            c++;
-                        }
+                         if(c == 0){
+                            if (queue_ws1[q] == 0) {
+                                queue_ws1[q] = n_a;
+                                c++;
+                                break;
+                            }
+                        
                     }
                 }
                 queue_ws1_counter++;
@@ -467,8 +472,8 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t; //Save departure time ws
             //Time in WS1 
             time_system_job_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]];
-            //Waiting time queue WS1
-            waiting_time_job_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = time_arrival_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] - time_arrival[run_n][n_d_ws[1]];
+            
+            
 
             //3. Departure WS1 = Arrival WS2
             //1. Check if there is an idle worker in WS2 --> unit will be processed immediately
@@ -477,12 +482,12 @@ public class Procedure {
             n_a_ws[2]++;
 
             for (i1 = 0; i1 < nr_servers[2]; i1++) { //number of workers busy
-                if (current_cust[2][i1] == 0) {
+                if (current_cust[2][i1] != 0) {
                     count++;
                 }
             }
 
-            if (count < nr_servers[2]) {
+            if (count < nr_servers[2] ) {
                 for (i1 = 0; i1 < nr_servers[2]; i1++) { //first idle worker
                     if (current_cust[2][i1] == 0) {
                         worker_idle = i1;
@@ -505,18 +510,21 @@ public class Procedure {
                 t_d[2][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
 
-                current_station[current_cust[2][worker_idle]] = route[1];                       //Current station of a job 
+                //current_station[current_cust[2][worker_idle]] = route[1];                       //Current station of a job 
 
             } else {  //Add unit to queue
                 int c = 0;
-                while (c == 0) {
+                time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]];
                     for (int q = 0; q < queue_ws2.length; q++) {
+                        if(c ==0){
                         if (queue_ws2[q] == 0) {
                             queue_ws2[q] = list_process[1][n_d_ws[1]];
                             c++;
+                            break;
+                        }
                         }
                     }
-                }
+                
                 queue_ws2_counter++;
 
             }
@@ -536,7 +544,7 @@ public class Procedure {
                 queue_ws1[max_C - 1] = 0;
 
                 //Processing in WS1
-                time_arrival_ws[run_n][index_dep_station][next_arrival] = t; //Initialize arrival time at WS1
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[1]++;                  //number of jobs at WS1
 
                 //Processing of the job
@@ -551,6 +559,8 @@ public class Procedure {
             } else {
                 t_d[index_dep_station][index_dep_server] = infinity;
             }
+            
+            
         }
 
         //WS2 - unit is processed
@@ -609,7 +619,7 @@ public class Procedure {
                 t_d[index_dep_station][index_dep_server] = infinity;
             }
 
-        } //WS0 -triaging
+        } //WS0 -triaging --- AANPASSEN!!!
         else if (index_dep_station == 0) {
 
             n_d_ws[index_dep_station]++;        //number of jobs handeled at WS0
