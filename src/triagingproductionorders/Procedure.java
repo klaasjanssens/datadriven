@@ -190,7 +190,13 @@ public class Procedure {
         
         /* OTHER PARAMETERS */
         infinity = 999999999;
+        
+        int seedValue = 2;
+        random = new Random();
+        random.setSeed(seedValue);
     }
+    
+    
     
     public void doProcedure() throws IOException{
         L = 1;
@@ -301,6 +307,8 @@ public class Procedure {
             t_a[i3] = Distributions.Poisson_distribution(lambda[i3],this.random); // INVERSION METHOD POISSON DISTRIBUTION
         }
         
+        
+        
         // TO DO STUDENT    // Get next arrival
         for (int i4 = 0; i4 < max_AS; i4++){
             first_ta = infinity;
@@ -317,7 +325,7 @@ public class Procedure {
     
     private void production_system(){
         
-        if(triaging == 0 ){ //Without triaging
+        
             
             // TO DO STUDENT         // Perform simulation until prespecified (time) number of customers have departed (while loop)
              while(n_d < N){                        // As long as the number of customers departed < N, perform simulation
@@ -355,13 +363,7 @@ public class Procedure {
                 
              }
             
-        } else { //With triaging
-            // TO DO STUDENT        //Identify next departure event
-            // TO DO STUDENT        // Identify next arrival event
-            // TO DO STUDENT        // Identify next event (arrival or departure)
-            // TO DO STUDENT        // ARRIVAL EVENT
-            // TO DO STUDENT        // DEPARTURE EVENT
-        }
+        
         
         
         
