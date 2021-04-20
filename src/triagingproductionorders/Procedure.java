@@ -14,13 +14,13 @@ import java.util.Random;
 
 public class Procedure {
     /* SET INPUT VALUES */
-    int maxPeriod = 200;
-    int max_C = 20000; //max number of jobs,customers (can enlarge if necessary)
-    int max_run = 10; 
-    int max_S = 10; //servers
+    int maxPeriod = 5;
+    int max_C = 5; //max number of jobs,customers (can enlarge if necessary)
+    int max_run = 5; 
+    int max_S = 5; //servers
     int max_AS = 4; //arrival sources (in this case we have 4)
-    int max_nr_stations = 10; 
-    int max_nr_job_types = 10; 
+    int max_nr_stations = 5; 
+    int max_nr_job_types = 5; 
     int seed;
     
     Random random; // needed to produce random numbers with a given seed
@@ -204,9 +204,10 @@ public class Procedure {
         for (i3 = 0; i3 < L; i3++){
             K = 1;                              //1 replication per run 
             for (run = 0; run < K; run++){
-                seed = (i3+1)*K-run;                                            // Ensure you use a different seed each time to get IID replications
-                resetVariables();
+                seed = (i3+1)*K-run;        // Ensure you use a different seed each time to get IID replications
                 run_n = i3;
+                resetVariables();
+                
                 production_system();
                 output();
             }
@@ -323,17 +324,19 @@ public class Procedure {
     
     }
     
+    //KLOPT
     private void production_system(){
         
         
             
             // TO DO STUDENT         // Perform simulation until prespecified (time) number of customers have departed (while loop)
-             while(n_d < N){                        // As long as the number of customers departed < N, perform simulation
+             //while(n_d < N){                        // As long as the number of customers departed < N, perform simulation
+                first_td = infinity;
                 
                 // TO DO STUDENT        //Identify next departure event
                 for (i1 = 0; i1 < nr_stations; i1++){
                     for (i2 = 0; i2 < nr_servers[i1]; i2++){
-                            first_td = infinity;
+                            
                             if(t_d[i1][i2] < first_td){
                              first_td = t_d[i1][i2];
                              index_dep_station = i1;    
@@ -356,12 +359,13 @@ public class Procedure {
                 
                 if(first_ta < first_td){ // TO DO STUDENT        // ARRIVAL EVENT
                     arrival_event();
+                    System.out.println("arrival event " + index_arr);
                 } else {                // TO DO STUDENT        // DEPARTURE EVENT 
                     departure_event();
+                    System.out.println("departure event " + index_dep_station + " server " + index_dep_server);
                 }
-                
-                
-             }
+
+             //}
             
         
         
