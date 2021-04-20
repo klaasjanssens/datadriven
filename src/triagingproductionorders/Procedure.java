@@ -197,7 +197,8 @@ public class Procedure {
         L = 1;
 
         for (i3 = 0; i3 < L; i3++) {
-            K = 1;                              //1 replication per run 
+            K = 1;    
+            //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (i3 + 1) * K - run;        // Ensure you use a different seed each time to get IID replications
                 run_n = i3;
