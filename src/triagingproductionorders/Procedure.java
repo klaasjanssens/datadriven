@@ -132,7 +132,7 @@ public class Procedure {
     public Procedure() {
         /* INPUT DATA RELATED TO PRODUCTION DPT */
         nr_stations = 3;
-        nr_servers[0] = 2;
+        nr_servers[0] = 6;
         nr_servers[1] = 1;
         nr_servers[2] = 1;
 
@@ -580,7 +580,7 @@ public class Procedure {
             time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
             time_system[run_n][list_process[2][n_d_ws[2]]] = t - time_arrival[run_n][list_process[2][n_d_ws[2]]];
             //Departure Time from system
-            time_departure[i3][list_process[2][n_d_ws[index_dep_station]]] = t;
+            time_departure[run_n][list_process[2][n_d_ws[index_dep_station]]] = t;
 
             //3. Units queue?
             if (queue_ws2_counter > 0) { //Start processing of next unit in WS1
@@ -709,7 +709,7 @@ public class Procedure {
                     for (int i = 0; i < queue_ws1_counter; i++) {
                         if (category >= waiting_type[i]) {
                             index++; //Place of new unit 
-                            System.out.println("place new unit " + index);
+                            //System.out.println("place new unit " + index);
                         }
                     }
 
