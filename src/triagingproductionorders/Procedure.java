@@ -15,7 +15,6 @@ import java.util.Random;
 public class Procedure {
 
     /* SET INPUT VALUES */
-
     int maxPeriod = 200;
     int max_C = 20000;
     int max_run = 10;
@@ -139,7 +138,7 @@ public class Procedure {
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 0;
+        triaging = 1;
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -197,7 +196,7 @@ public class Procedure {
         L = 1;
 
         for (i3 = 0; i3 < L; i3++) {
-            K = 1;    
+            K = 1;
             //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (i3 + 1) * K - run;        // Ensure you use a different seed each time to get IID replications
@@ -307,8 +306,7 @@ public class Procedure {
         // TO DO STUDENT    // Get next arrival
         /**
          * for (int i4 = 0; i4 < max_AS; i4++){ first_ta = infinity; if(t_a[i4]
-         * < first_ta){ first_ta = t_a[i4]; index_arr = i4; }
-        }
+         * < first_ta){ first_ta = t_a[i4]; index_arr = i4; } }
          */
         // TO DO STUDENT    // Calculate average arrival time to the system
     }
@@ -382,7 +380,7 @@ public class Procedure {
             }
         }
 
-        if (count < nr_servers[route[0]] ) {
+        if (count < nr_servers[route[0]]) {
             for (i1 = 0; i1 < nr_servers[route[0]]; i1++) { //first idle worker
                 if (current_cust[route[0]][i1] == 0) {
                     worker_idle = i1;
@@ -393,8 +391,7 @@ public class Procedure {
         }
 
         if (n_ws[route[0]] < nr_servers[route[0]]) { //Number of jobs at WS < number of workers at WS --> there is an idle worker/server
-            
-            
+
             n_ws[route[0]]++;                  //number of jobs at WS0 or WS1
 
             //Processing of the job
@@ -410,16 +407,15 @@ public class Procedure {
             //Add unit to queue
             if (triaging == 0) {                  //Start in WS1
                 int c = 0;
-                
-               
-                    for (int q = 0; q < queue_ws1.length; q++) {
-                         if(c == 0){
-                            if (queue_ws1[q] == 0) {
-                                queue_ws1[q] = n_a;
-                                c++;
-                                break;
-                            }
-                        
+
+                for (int q = 0; q < queue_ws1.length; q++) {
+                    if (c == 0) {
+                        if (queue_ws1[q] == 0) {
+                            queue_ws1[q] = n_a;
+                            c++;
+                            break;
+                        }
+
                     }
                 }
                 queue_ws1_counter++;
@@ -474,8 +470,6 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t; //Save departure time ws
             //Time in WS1 
             time_system_job_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]];
-            
-            
 
             //3. Departure WS1 = Arrival WS2
             //1. Check if there is an idle worker in WS2 --> unit will be processed immediately
@@ -489,7 +483,7 @@ public class Procedure {
                 }
             }
 
-            if (count < nr_servers[2] ) {
+            if (count < nr_servers[2]) {
                 for (i1 = 0; i1 < nr_servers[2]; i1++) { //first idle worker
                     if (current_cust[2][i1] == 0) {
                         worker_idle = i1;
@@ -513,20 +507,19 @@ public class Procedure {
                 tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
 
                 //current_station[current_cust[2][worker_idle]] = route[1];                       //Current station of a job 
-
             } else {  //Add unit to queue
                 int c = 0;
                 time_arrival_ws[run_n][2][list_process[1][n_d_ws[1]]] = time_departure_ws[run_n][index_dep_station][list_process[1][n_d_ws[1]]];
-                    for (int q = 0; q < queue_ws2.length; q++) {
-                        if(c ==0){
+                for (int q = 0; q < queue_ws2.length; q++) {
+                    if (c == 0) {
                         if (queue_ws2[q] == 0) {
                             queue_ws2[q] = list_process[1][n_d_ws[1]];
                             c++;
                             break;
                         }
-                        }
                     }
-                
+                }
+
                 queue_ws2_counter++;
                 tot_n_queue_ws[run_n][2]++;
 
@@ -548,7 +541,7 @@ public class Procedure {
                 queue_ws1[max_C - 1] = 0;
 
                 //Processing in WS1
-                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t - time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[1]++;                  //number of jobs at WS1
 
                 //Processing of the job
@@ -563,19 +556,15 @@ public class Procedure {
             } else {
                 t_d[index_dep_station][index_dep_server] = infinity;
             }
-            
-            
-        }
 
-        //WS2 - unit is processed
-       else if (index_dep_station == 2) {
+        } //WS2 - unit is processed
+        else if (index_dep_station == 2) {
             n--;                                //Decrease the total number of jobs in the system
             n_d_ws[index_dep_station]++;        //number of jobs handled at WS2
             t = first_td;                       //update time
             n_d++;                              // increase total number of jobs handled
             n_d_as[job_type[current_cust[index_dep_station][index_dep_server]]]++;
-            
-            
+
             tot_n[run_n]--;                      //Decrease number of customers in the system over time
 
             //1. Idle maken unit eruit
@@ -589,7 +578,7 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t; //Save departure time ws
             //Time in WS2
             time_system_job_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[2][n_d_ws[2]]];
-           
+            time_system[run_n][list_process[2][n_d_ws[2]]] = t - time_arrival[run_n][list_process[2][n_d_ws[2]]];
             //Departure Time from system
             time_departure[i3][list_process[2][n_d_ws[index_dep_station]]] = t;
 
@@ -609,7 +598,7 @@ public class Procedure {
                 queue_ws2[max_C - 1] = 0;
 
                 //Processing in WS2
-                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t - time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[2]++;                  //number of jobs at WS2
 
                 //Processing of the job
@@ -642,38 +631,34 @@ public class Procedure {
             time_departure_ws[run_n][index_dep_station][list_process[index_dep_station][n_d_ws[index_dep_station]]] = t; //Save departure time ws
             //Time in WS1 
             time_system_job_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]] = t - time_arrival_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]];
-            
-            
+
             time_arrival_ws[run_n][1][list_process[0][n_d_ws[0]]] = time_departure_ws[run_n][index_dep_station][list_process[0][n_d_ws[0]]];
-            
+
             //3. Departure WS0 = Arrival WS1
             //1. The units in the queue of WS1 must be ordered -- no longer FIFO
             if (queue_ws1_counter == 0) { //There are no units in the queue 
-                n_a_ws[1]++;            //Unit arrives in WS1
+                int count = 0;
+                int worker_idle = 0;
+                n_a_ws[1]++;
 
-                if (n_ws[1] < nr_servers[1]) {    //1. There is an idle server in WS1 -- unit can be processed immediately in WS1
+                for (i1 = 0; i1 < nr_servers[1]; i1++) { //number of workers busy
+                    if (current_cust[1][i1] != 0) {
+                        count++;
+                    }
+                }
 
-                    n_ws[1]++;          //unit will be processed in WS1
-                    int count = 0;
-                    int worker_idle = 0;
-
-                    for (i1 = 0; i1 < nr_servers[1]; i1++) { //number of workers busy
+                if (count < nr_servers[1]) {
+                    for (i1 = 0; i1 < nr_servers[1]; i1++) { //first idle worker
                         if (current_cust[1][i1] == 0) {
-                            count++;
+                            worker_idle = i1;
+                            break;
                         }
+
                     }
+                }
 
-                    if (count < nr_servers[1]) {
-                        for (i1 = 0; i1 < nr_servers[1]; i1++) { //first idle worker
-                            if (current_cust[1][i1] == 0) {
-                                worker_idle = i1;
-                                break;
-                            }
-
-                        }
-                    }
-
-                     //Initialize arrival time at WS2
+                if (n_ws[1] < nr_servers[1]) { //Number of jobs at WS2 < number of workers at WS2 --> there is an idle worker/server
+                    n_ws[1]++; //pas wnr het verwerkt wordt!
 
                     //Processing of the job
                     current_cust[1][worker_idle] = list_process[0][n_d_ws[0]]; //Customer handeled by WS2 and the idle worker 
@@ -685,16 +670,8 @@ public class Procedure {
                     tot_mu[run_n] += t_mu;                                                        //  Update Total Service Time
 
                     //current_station[current_cust[1][worker_idle]] = route[1];                       //Current station of a job 
-                } else {                        //2. The unit has to be added to the queue of WS1, because there is no idle server                        
-                    int c = 0;
-                    while (c == 0) {
-                        for (int q = 0; q < queue_ws1.length; q++) {
-                            if (queue_ws1[q] == 0) {
-                                queue_ws1[q] = list_process[0][n_d_ws[0]];
-                                c++;
-                            }
-                        }
-                    }
+                } else {                        //2. The unit has to be added to the queue of WS1, because there is no idle server but queue is empty -- place 0                     
+                    queue_ws1[0] = list_process[0][n_d_ws[0]];
                     queue_ws1_counter++;
                     tot_n_queue_ws[run_n][1]++;
 
@@ -764,10 +741,12 @@ public class Procedure {
 
             //4. Units queue?
             if (queue_ws0_counter > 0) { //Start processing of next unit in WS1
+                
+
                 int next_arrival = 0;
 
                 queue_ws0_counter--;
-                tot_n_queue_ws[run_n][1]--;
+                tot_n_queue_ws[run_n][0]--;
                 next_arrival = queue_ws0[0];
 
                 for (int q = 1; q < queue_ws0.length; q++) {
@@ -778,7 +757,7 @@ public class Procedure {
                 queue_ws0[max_C - 1] = 0;
 
                 //Processing in WS1
-                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t- time_arrival_ws[run_n][index_dep_station][next_arrival];
+                waiting_time_job_ws[run_n][index_dep_station][next_arrival] = t - time_arrival_ws[run_n][index_dep_station][next_arrival];
                 n_ws[0]++;                  //number of jobs at WS1
 
                 //Processing of the job
@@ -799,7 +778,8 @@ public class Procedure {
     }
 
     private void output() throws IOException {
-        String fileName1 = "Output_Triaging" + run + ".txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging" + run + ".txt";
+        //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
         if (!file.exists()) {
