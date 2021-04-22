@@ -137,13 +137,13 @@ public class Procedure {
     public Procedure() {
         /* INPUT DATA RELATED TO PRODUCTION DPT */
         nr_stations = 3;
-        nr_servers[0] = 6;
-        nr_servers[1] = 1;
-        nr_servers[2] = 1;
+        nr_servers[0] = 1;
+        nr_servers[1] = 6;
+        nr_servers[2] = 5;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 0;
+        triaging = 1;
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -186,7 +186,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 3; // Number of jobs
+        N = 1000; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
