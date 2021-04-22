@@ -197,8 +197,7 @@ public class Procedure {
         
 
         for (int l = 0; l < L; l++) {
-            K = 1;
-            //1 replication per run 
+            K = 1; //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (l + 1) * K - run; 
                 // Ensure you use a different seed each time to get IID replications
@@ -304,7 +303,7 @@ public class Procedure {
 
         // TO DO STUDENT    // Generate first arrival for all sources
         for (i3 = 0; i3 < max_AS; i3++) {
-            t_a[i3] = Distributions.Poisson_distribution(lambda[i3], this.random); // INVERSION METHOD POISSON DISTRIBUTION
+            t_a[i3] = Distributions.Exponential_distribution(lambda[i3], this.random); // INVERSION METHOD POISSON DISTRIBUTION
         }
 
         // TO DO STUDENT    // Get next arrival
