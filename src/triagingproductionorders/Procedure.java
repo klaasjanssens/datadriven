@@ -200,7 +200,12 @@ public class Procedure {
             K = 1;
             //1 replication per run 
             for (run = 0; run < K; run++) {
-                seed = (l + 1) * K - run;        // Ensure you use a different seed each time to get IID replications
+                seed = (l + 1) * K - run; 
+                // Ensure you use a different seed each time to get IID replications
+                
+                random = new Random();
+                random.setSeed(seed);
+                
                 resetVariables();
                 production_system();
                 output();
@@ -311,8 +316,6 @@ public class Procedure {
         
         
         
-        random = new Random();
-        random.setSeed(seed);
     }
 
     //KLOPT
