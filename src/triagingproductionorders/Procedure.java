@@ -114,6 +114,7 @@ public class Procedure {
     int[] order_out = new int[max_C];
     double[] mean_system_time = new double[max_run];
     double[][] mean_system_time_as = new double[max_run][max_AS];
+    double[][] system_time_as =new double[max_run][max_AS];
 
     /* OTHER PARAMETERS */
     int infinity;
@@ -181,7 +182,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 1000; // Number of jobs
+        N = 5; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -585,6 +586,7 @@ public class Procedure {
             //Time in WS2
             time_system_job_ws[run][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run][index_dep_station][list_process[2][n_d_ws[2]]];
             time_system[run][list_process[2][n_d_ws[2]]] = t - time_arrival[run][list_process[2][n_d_ws[2]]];
+            system_time_as [run][job_type[current_cust[index_dep_station][index_dep_server]]]+= time_system[run][list_process[2][n_d_ws[2]]];
             //Departure Time from system
             time_departure[run][list_process[2][n_d_ws[index_dep_station]]] = t;
 
@@ -798,7 +800,7 @@ public class Procedure {
         FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
         PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
 
-        for (i1 = 0; i1 < nr_stations; i1++) {                                       // PRINT Utilisation
+        /**for (i1 = 0; i1 < nr_stations; i1++) {                                       // PRINT Utilisation
             printWriter.println("Utilisation servers Station WS" + i1 + ":\t");
             for (i2 = 0; i2 < nr_servers[i1]; i2++) {
                 j1 = (idle[run][i1][i2] / t);
@@ -827,6 +829,7 @@ public class Procedure {
 
         printWriter.println("\n");
 
+       
         for (i1 = 0; i1 < n_d; i1++) {                                           // PRINT system time = cycle time (observations and running average)
             mean_system_time[run] += time_system[run][order_out[i1]];
         }
@@ -860,7 +863,11 @@ public class Procedure {
             printWriter.println(i1 + "\t" + n_d_as[i1] + "\t" + j1);
             objective += obj_fct[i1] * j1;                                      //mean_system_time_as[run][i1];
         }
-
+*/
+        for (i1 = 0; i1 < nr_arrival_sources; i1++){
+            mean_system_time_as[run][i1] = system_time_as[run][i1]/n_d_as[i1];
+        }
+            
         printWriter.println("Objective: " + objective + "\n");
         printWriter.close();
         
