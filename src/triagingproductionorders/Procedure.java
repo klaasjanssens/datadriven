@@ -864,5 +864,6 @@ public class Procedure {
 
         printWriter.println("Objective: " + objective + "\n");
         printWriter.close();
-    }
+        
+    }    
 }
