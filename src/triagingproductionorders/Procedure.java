@@ -906,7 +906,6 @@ public class Procedure {
         
 
         System.out.println(objective + "= objective");
-
         printWriter.println("Objective: " + objective + "\n");
         printWriter.close();
 
