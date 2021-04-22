@@ -95,6 +95,8 @@ public class Procedure {
     /* PARAMETERS RELATED TO waiting OF JOBS */
     double[] mean_waiting_time = new double[max_run];
     double[] waiting_time = new double[max_run];
+    double[][] waiting_time_ws = new double[max_run][max_S];
+    double[][] mean_waiting_time_ws = new double[max_run][max_S];
     double[][][] waiting_time_job_ws = new double[max_run][max_nr_stations][max_C];    // Waiting time for a job on a particular workstation
     double[] mean_customers_queue = new double[max_run];
     double[] tot_n_queue = new double[max_run];
@@ -114,11 +116,13 @@ public class Procedure {
     int[] order_out = new int[max_C];
     double[] mean_system_time = new double[max_run];
     double[][] mean_system_time_as = new double[max_run][max_AS];
-    double[][] system_time_as =new double[max_run][max_AS];
+    double[][] system_time_as = new double[max_run][max_AS];
 
     /* OTHER PARAMETERS */
     int infinity;
-    double[][][] idle = new double[max_run][max_nr_stations][max_S];
+    double[][][] working_time = new double[max_run][max_nr_stations][max_S];
+    double[][] utilization = new double[max_run][max_nr_stations];
+    double[][] mean_working_time = new double[max_run][max_nr_stations];
     double[][] rho_ws_s = new double[max_nr_stations][max_S];
     double[] rho_ws = new double[max_nr_stations];
     double rho;
@@ -182,30 +186,27 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 20; // Number of jobs
+        N = 3; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
         infinity = 999999999;
 
-        
     }
 
     public void doProcedure() throws IOException {
         L = 1;
         max_run = 10;
-        
-        
 
         for (int l = 0; l < L; l++) {
             K = 1; //1 replication per run 
             for (run = 0; run < K; run++) {
-                seed = (l + 1) * K - run; 
+                seed = (l + 1) * K - run;
                 // Ensure you use a different seed each time to get IID replications
-                
+
                 random = new Random();
                 random.setSeed(seed);
-                
+
                 resetVariables();
                 production_system();
                 output();
@@ -313,9 +314,6 @@ public class Procedure {
          * < first_ta){ first_ta = t_a[i4]; index_arr = i4; } }
          */
         // TO DO STUDENT    // Calculate average arrival time to the system
-        
-        
-        
     }
 
     //KLOPT
@@ -408,6 +406,8 @@ public class Procedure {
             time_service[run][route[0]][n_a] = t_mu;                                           // Store service time customer n_a
             t_d[route[0]][worker_idle] = t + t_mu;                                             // Generate departure time
             tot_mu[run] += t_mu;                                                        //  Update Total Service Time
+            
+            working_time[run][route[0]][worker_idle] += t_mu;
 
             //current_station[n_a] = route[triaging];                                                   //Current station of a job 
         } else {                                //There are no available servers -- unit must wait in the queue
@@ -477,7 +477,8 @@ public class Procedure {
             time_departure_ws[run][index_dep_station][list_process[1][n_d_ws[1]]] = t; //Save departure time ws
             //Time in WS1 
             time_system_job_ws[run][index_dep_station][list_process[1][n_d_ws[1]]] = t - time_arrival_ws[run][index_dep_station][list_process[1][n_d_ws[1]]];
-
+            waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][list_process[1][n_d_ws[1]]];
+            //System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);
             //3. Departure WS1 = Arrival WS2
             //1. Check if there is an idle worker in WS2 --> unit will be processed immediately
             int count = 0;
@@ -512,7 +513,8 @@ public class Procedure {
                 time_service[run][2][current_cust[2][worker_idle]] = t_mu;                 // Store service time customer n_a
                 t_d[2][worker_idle] = t + t_mu;                                             // Generate departure time
                 tot_mu[run] += t_mu;                                                        //  Update Total Service Time
-
+                
+                working_time[run][2][worker_idle] += t_mu;
                 //current_station[current_cust[2][worker_idle]] = route[1];                       //Current station of a job 
             } else {  //Add unit to queue
                 int c = 0;
@@ -549,6 +551,8 @@ public class Procedure {
 
                 //Processing in WS1
                 waiting_time_job_ws[run][index_dep_station][next_arrival] = t - time_arrival_ws[run][index_dep_station][next_arrival];
+                /**waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][next_arrival];
+                System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);*/
                 n_ws[1]++;                  //number of jobs at WS1
 
                 //Processing of the job
@@ -558,6 +562,8 @@ public class Procedure {
                 time_service[run][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
                 t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
                 tot_mu[run] += t_mu;                                                                                  //  Update Total Service Time
+                
+                working_time[run][index_dep_station][worker_idle] += t_mu;
 
                 //current_station[next_arrival] = route[0];                                                               //Current station of a job 
             } else {
@@ -586,10 +592,12 @@ public class Procedure {
             //Time in WS2
             time_system_job_ws[run][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run][index_dep_station][list_process[2][n_d_ws[2]]];
             time_system[run][list_process[2][n_d_ws[2]]] = t - time_arrival[run][list_process[2][n_d_ws[2]]];
-            System.out.print("job number "  + n_d + " " + time_system[run][list_process[2][n_d_ws[2]]] + " job type " +job_type[list_process[2][n_d_ws[2]]]+ "\n");
-            system_time_as [run][job_type[list_process[2][n_d_ws[2]]]]+= time_system[run][list_process[2][n_d_ws[2]]];
+            //System.out.print("job number " + n_d + " " + time_system[run][list_process[2][n_d_ws[2]]] + " job type " + job_type[list_process[2][n_d_ws[2]]] + "\n");
+            system_time_as[run][job_type[list_process[2][n_d_ws[2]]]] += time_system[run][list_process[2][n_d_ws[2]]];
             //Departure Time from system
             time_departure[run][list_process[2][n_d_ws[index_dep_station]]] = t;
+            waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][list_process[2][n_d_ws[2]]];
+            //System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);
 
             //3. Units queue?
             if (queue_ws2_counter > 0) { //Start processing of next unit in WS1
@@ -608,6 +616,8 @@ public class Procedure {
 
                 //Processing in WS2
                 waiting_time_job_ws[run][index_dep_station][next_arrival] = t - time_arrival_ws[run][index_dep_station][next_arrival];
+               /** waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][next_arrival];
+                System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);*/
                 n_ws[2]++;                  //number of jobs at WS2
 
                 //Processing of the job
@@ -617,7 +627,8 @@ public class Procedure {
                 time_service[run][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
                 t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
                 tot_mu[run] += t_mu;                                                                                  //  Update Total Service Time
-
+                
+                working_time[run][index_dep_station][index_dep_server] += t_mu;
                 //current_station[next_arrival] = route[0];                                                               //Current station of a job 
             } else {
                 t_d[index_dep_station][index_dep_server] = infinity;
@@ -642,7 +653,9 @@ public class Procedure {
             time_system_job_ws[run][index_dep_station][list_process[0][n_d_ws[0]]] = t - time_arrival_ws[run][index_dep_station][list_process[0][n_d_ws[0]]];
 
             time_arrival_ws[run][1][list_process[0][n_d_ws[0]]] = time_departure_ws[run][index_dep_station][list_process[0][n_d_ws[0]]];
-
+            waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][list_process[0][n_d_ws[0]]];
+            //System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);
+            
             //3. Departure WS0 = Arrival WS1
             //1. The units in the queue of WS1 must be ordered -- no longer FIFO
             if (queue_ws1_counter == 0) { //There are no units in the queue 
@@ -677,7 +690,8 @@ public class Procedure {
                     time_service[run][1][current_cust[1][worker_idle]] = t_mu;                 // Store service time customer n_a
                     t_d[1][worker_idle] = t + t_mu;                                             // Generate departure time
                     tot_mu[run] += t_mu;                                                        //  Update Total Service Time
-
+                    
+                    working_time[run][1][worker_idle] += t_mu;
                     //current_station[current_cust[1][worker_idle]] = route[1];                       //Current station of a job 
                 } else {                        //2. The unit has to be added to the queue of WS1, because there is no idle server but queue is empty -- place 0                     
                     queue_ws1[0] = list_process[0][n_d_ws[0]];
@@ -750,7 +764,6 @@ public class Procedure {
 
             //4. Units queue?
             if (queue_ws0_counter > 0) { //Start processing of next unit in WS1
-                
 
                 int next_arrival = 0;
 
@@ -767,6 +780,8 @@ public class Procedure {
 
                 //Processing in WS1
                 waiting_time_job_ws[run][index_dep_station][next_arrival] = t - time_arrival_ws[run][index_dep_station][next_arrival];
+                /**waiting_time_ws[run][index_dep_station] += waiting_time_job_ws[run][index_dep_station][next_arrival];
+                System.out.println("waiting station" + index_dep_station + " " + waiting_time_ws[run][index_dep_station]);*/
                 n_ws[0]++;                  //number of jobs at WS1
 
                 //Processing of the job
@@ -776,7 +791,8 @@ public class Procedure {
                 time_service[run][index_dep_station][next_arrival] = t_mu;                                            // Store service time customer n_a
                 t_d[index_dep_station][index_dep_server] = t + t_mu;                                                    // Generate departure time
                 tot_mu[run] += t_mu;                                                                                  //  Update Total Service Time
-
+                
+                working_time[run][index_dep_station][index_dep_server] += t_mu;
                 //current_station[next_arrival] = route[0];                                                               //Current station of a job 
             } else {
                 t_d[index_dep_station][index_dep_server] = infinity;
@@ -801,78 +817,98 @@ public class Procedure {
         FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
         PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
 
-        /**for (i1 = 0; i1 < nr_stations; i1++) {                                       // PRINT Utilisation
-            printWriter.println("Utilisation servers Station WS" + i1 + ":\t");
-            for (i2 = 0; i2 < nr_servers[i1]; i2++) {
-                j1 = (idle[run][i1][i2] / t);
-                rho_ws_s[i1][i2] = 1 - j1;
-                printWriter.println(rho_ws_s[i1][i2]);
-            }
-            printWriter.println("\n");
-        }
-        printWriter.println("\n");
-
-        for (i1 = 0; i1 < nr_stations; i1++) {
-            printWriter.println("Avg utilisation Station WS" + i1 + ":\t");
-            for (i2 = 0; i2 < nr_servers[i1]; i2++) {
-                rho_ws[i1] += rho_ws_s[i1][i2];
-            }
-            rho_ws[i1] = rho_ws[i1] / nr_servers[i1];
-            printWriter.println(rho_ws[i1] + "\n");
-        }
-        printWriter.println("\n");
-
-        for (i1 = 0; i1 < nr_stations; i1++) {
-            rho += rho_ws[i1];
-        }
-        rho /= nr_stations;
-        printWriter.println("Overall avg utilisation:" + rho + "\n\n");
-
-        printWriter.println("\n");
-
-       
-        for (i1 = 0; i1 < n_d; i1++) {                                           // PRINT system time = cycle time (observations and running average)
-            mean_system_time[run] += time_system[run][order_out[i1]];
-        }
-        printWriter.println("Cycle time\n\n");
-        j1 = mean_system_time[run] / n_d;
-        printWriter.println("Avg cycle time:" + j1 + "\n\n");
-
-        mean_system_time[run] = 0;
+        /**
+         * for (i1 = 0; i1 < nr_stations; i1++) { // PRINT Utilisation
+         * printWriter.println("Utilisation servers Station WS" + i1 + ":\t");
+         * for (i2 = 0; i2 < nr_servers[i1]; i2++) { j1 = (idle[run][i1][i2] /
+         * t); rho_ws_s[i1][i2] = 1 - j1; printWriter.println(rho_ws_s[i1][i2]);
+         * } printWriter.println("\n"); } printWriter.println("\n");
+         *
+         * for (i1 = 0; i1 < nr_stations; i1++) { printWriter.println("Avg
+         * utilisation Station WS" + i1 + ":\t"); for (i2 = 0; i2 <
+         * nr_servers[i1]; i2++) { rho_ws[i1] += rho_ws_s[i1][i2]; } rho_ws[i1]
+         * = rho_ws[i1] / nr_servers[i1]; printWriter.println(rho_ws[i1] +
+         * "\n"); } printWriter.println("\n");
+         *
+         * for (i1 = 0; i1 < nr_stations; i1++) { rho += rho_ws[i1]; } rho /=
+         * nr_stations; printWriter.println("Overall avg utilisation:" + rho +
+         * "\n\n");
+         *
+         * printWriter.println("\n");
+         *
+         *
+         * for (i1 = 0; i1 < n_d; i1++) { // PRINT system time = cycle time
+         * (observations and running average) mean_system_time[run] +=
+         * time_system[run][order_out[i1]]; } printWriter.println("Cycle
+         * time\n\n"); j1 = mean_system_time[run] / n_d;
+         * printWriter.println("Avg cycle time:" + j1 + "\n\n");
+         *
+         * mean_system_time[run] = 0; for (i1 = 0; i1 < nr_arrival_sources;
+         * i1++) { mean_system_time_as[run][i1] = 0; n_d_as[i1] = 0; }
+         * printWriter.println("Number\tObservation\tRunning Average\n");
+         *
+         * for (i1 = 0; i1 < n_d; i1++) { // Calculate cycle time per order type
+         * mean_system_time[run] += time_system[run][order_out[i1]];
+         * mean_system_time_as[run][job_type[order_out[i1]]] +=
+         * time_system[run][order_out[i1]]; n_d_as[job_type[order_out[i1]]]++;
+         * j1 = mean_system_time[run] / (i1 + 1); printWriter.println(i1 + "\t"
+         * + time_system[run][order_out[i1]] + "\t" + j1); }
+         *
+         * printWriter.println("Arr S\tNumber\tCycle time\n"); objective = 0;
+         * for (i1 = 0; i1 < nr_arrival_sources; i1++) { // PRINT cycle time per
+         * order type if (n_d_as[i1] == 1) { j1 = mean_system_time_as[run][i1] /
+         * n_d_as[i1]; } else { j1 = 0; } printWriter.println(i1 + "\t" +
+         * n_d_as[i1] + "\t" + j1); objective += obj_fct[i1] * j1;
+         * //mean_system_time_as[run][i1]; }
+         */
         for (i1 = 0; i1 < nr_arrival_sources; i1++) {
-            mean_system_time_as[run][i1] = 0;
-            n_d_as[i1] = 0;
-        }
-        printWriter.println("Number\tObservation\tRunning Average\n");
-
-        for (i1 = 0; i1 < n_d; i1++) {                                           // Calculate cycle time per order type
-            mean_system_time[run] += time_system[run][order_out[i1]];
-            mean_system_time_as[run][job_type[order_out[i1]]] += time_system[run][order_out[i1]];
-            n_d_as[job_type[order_out[i1]]]++;
-            j1 = mean_system_time[run] / (i1 + 1);
-            printWriter.println(i1 + "\t" + time_system[run][order_out[i1]] + "\t" + j1);
+            mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
+            //System.out.println("system time "+ i1 + " " + mean_system_time_as[run][i1] + "\n");
         }
 
-        printWriter.println("Arr S\tNumber\tCycle time\n");
-        objective = 0;
-        for (i1 = 0; i1 < nr_arrival_sources; i1++) {                            // PRINT cycle time per order type
-            if (n_d_as[i1] == 1) {
-                j1 = mean_system_time_as[run][i1] / n_d_as[i1];
-            } else {
-                j1 = 0;
+        for (i1 = 0; i1 < nr_arrival_sources; i1++) {
+            objective += mean_system_time_as[run][i1] * (double) obj_fct[i1];
+        }
+
+        if (triaging == 0) {
+            for (i1 = 1; i1 < 3; i1++) {
+                mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
+                System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1] );
             }
-            printWriter.println(i1 + "\t" + n_d_as[i1] + "\t" + j1);
-            objective += obj_fct[i1] * j1;                                      //mean_system_time_as[run][i1];
-        }
-*/
-        for (i1 = 0; i1 < nr_arrival_sources; i1++){
-            mean_system_time_as[run][i1] = system_time_as[run][i1]/n_d_as[i1];
-            System.out.println(mean_system_time_as[run][i1]);
+        } else {
+            for (i1 = 0; i1 < 3; i1++) {
+                mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
+                System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n"+n_d_ws[i1]);
+            }
         }
         
-            
+        if (triaging == 0) {
+            for (i1 = 1; i1 < 3; i1++) {
+                double  som = 0;
+                for(int i = 0; i < nr_servers[i1]; i++){
+                    som += working_time[run][i1][i];
+                }
+                
+                utilization[run][i1] = som /(nr_servers[i1]* t);
+                System.out.println("ut time " + i1 + " " + utilization[run][i1] + "\n" + t );
+            }
+        } else {
+            for (i1 = 0; i1 < 3; i1++) {
+                double  som = 0;
+                for(int i = 0; i < nr_servers[i1]; i++){
+                    som += working_time[run][i1][i];
+                }
+                
+                utilization[run][i1] = som /(nr_servers[i1]* t);
+                System.out.println("ut time " + i1 + " " + utilization[run][i1] + "\n" + t );
+            }
+        }
+        
+
+        System.out.println(objective + "= objective");
+
         printWriter.println("Objective: " + objective + "\n");
         printWriter.close();
-        
-    }    
+
+    }
 }
