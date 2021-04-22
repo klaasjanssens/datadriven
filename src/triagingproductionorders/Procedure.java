@@ -139,7 +139,7 @@ public class Procedure {
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 1;
+        triaging = 0;
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -182,7 +182,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 5; // Number of jobs
+        N = 20; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -350,10 +350,10 @@ public class Procedure {
             // TO DO STUDENT        // Identify next event (arrival or departure)
             if (first_ta < first_td) { // TO DO STUDENT        // ARRIVAL EVENT
                 arrival_event();
-                System.out.println("arrival event " + index_arr);
+                //System.out.println("arrival event " + index_arr);
             } else {                // TO DO STUDENT        // DEPARTURE EVENT 
                 departure_event();
-                System.out.println("departure event " + index_dep_station + " server " + index_dep_server);
+                //System.out.println("departure event " + index_dep_station + " server " + index_dep_server);
             }
 
         }
@@ -586,7 +586,8 @@ public class Procedure {
             //Time in WS2
             time_system_job_ws[run][index_dep_station][list_process[2][n_d_ws[2]]] = t - time_arrival_ws[run][index_dep_station][list_process[2][n_d_ws[2]]];
             time_system[run][list_process[2][n_d_ws[2]]] = t - time_arrival[run][list_process[2][n_d_ws[2]]];
-            system_time_as [run][job_type[current_cust[index_dep_station][index_dep_server]]]+= time_system[run][list_process[2][n_d_ws[2]]];
+            System.out.print("job number "  + n_d + " " + time_system[run][list_process[2][n_d_ws[2]]] + " job type " +job_type[list_process[2][n_d_ws[2]]]+ "\n");
+            system_time_as [run][job_type[list_process[2][n_d_ws[2]]]]+= time_system[run][list_process[2][n_d_ws[2]]];
             //Departure Time from system
             time_departure[run][list_process[2][n_d_ws[index_dep_station]]] = t;
 
@@ -866,7 +867,9 @@ public class Procedure {
 */
         for (i1 = 0; i1 < nr_arrival_sources; i1++){
             mean_system_time_as[run][i1] = system_time_as[run][i1]/n_d_as[i1];
+            System.out.println(mean_system_time_as[run][i1]);
         }
+        
             
         printWriter.println("Objective: " + objective + "\n");
         printWriter.close();
