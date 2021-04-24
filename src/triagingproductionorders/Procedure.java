@@ -146,6 +146,7 @@ public class Procedure {
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
         triaging = 1;
+        
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -902,7 +903,10 @@ public class Procedure {
             printWriter.println(i1 + "\t" + nr_servers[i1] + "\n");
         }
         for (i1 = 0; i1 < nr_arrival_sources; i1++) {
-            mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
+            if (n_d_as[i1] != 0)
+                mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
+            else
+                mean_system_time_as[run][i1] = 0;
             //System.out.println("system time "+ i1 + " " + mean_system_time_as[run][i1] + "\n");
         }
 
@@ -921,6 +925,15 @@ public class Procedure {
             mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
             System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1]);
         }
+        
+        printWriter.println("\n");
+        printWriter.println("Number of jobs finished per category: \n");
+        printWriter.println("Category\tNumber finished\n");
+        for (i1 = 0; i1 < nr_job_types; i1++) {
+            printWriter.println((i1 + 1) + "\t" +  n_d_as[i1] + "\n");
+        }
+        
+       
 
         printWriter.println("\n");
         printWriter.println("The average waiting time per workstation: \n");
