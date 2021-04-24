@@ -24,6 +24,7 @@ public class Procedure {
     int max_nr_job_types = 10;
     int seed;
     Random random; // needed to produce random numbers with a given seed 
+    int i = 0;
     /* COUNTER */
     int i1, i2, i6, run, i3;
     double j1, j2, j3;
@@ -101,6 +102,7 @@ public class Procedure {
     double[] mean_customers_queue = new double[max_run];
     double[] tot_n_queue = new double[max_run];
     double[][] tot_n_queue_ws = new double[max_run][max_nr_stations];          // Total number of jobs in queue at workstation over time
+    
     int[] queue_ws1 = new int[max_C];                           // Total number of jobs in queue at workstation
     int queue_ws1_counter = 0;
     int[] queue_ws2 = new int[max_C];                           // Total number of jobs in queue at workstation
@@ -138,12 +140,12 @@ public class Procedure {
         /* INPUT DATA RELATED TO PRODUCTION DPT */
         nr_stations = 3;
         nr_servers[0] = 1;
-        nr_servers[1] = 6;
+        nr_servers[1] = 2;
         nr_servers[2] = 5;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 0;
+        triaging = 1;
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -425,10 +427,11 @@ public class Procedure {
 
                     }
                 }
+                //queue_ws1[queue_ws1_counter++] = n_a;
                 queue_ws1_counter++;
                 tot_n_queue_ws[run][route[0]]++;
             } else {                             //Start in WS0
-                int c = 0;
+                /*int c = 0;
                 while (c == 0) {
                     for (int q = 0; q < queue_ws0.length; q++) {
                         if (queue_ws0[q] == 0) {
@@ -436,7 +439,21 @@ public class Procedure {
                             c++;
                         }
                     }
+                }**/
+                
+                int c = 0;
+
+                for (int q = 0; q < queue_ws0.length; q++) {
+                    if (c == 0) {
+                        if (queue_ws0[q] == 0) {
+                            queue_ws0[q] = n_a;
+                            c++;
+                            break;
+                        }
+
+                    }
                 }
+                //queue_ws0[queue_ws0_counter++] = n_a;
                 queue_ws0_counter++;
                 tot_n_queue_ws[run][route[0]]++;
             }
@@ -528,7 +545,9 @@ public class Procedure {
                         }
                     }
                 }
-
+                
+                
+                //queue_ws2[queue_ws2_counter] = list_process[1][n_d_ws[1]];
                 queue_ws2_counter++;
                 tot_n_queue_ws[run][2]++;
 
@@ -652,7 +671,8 @@ public class Procedure {
             n_ws[index_dep_station]--;                  //number of jobs at WS1
 
             //List of jobs processed at a particular WS on a particular moment in time 
-            list_process[0][n_d_ws[0]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan            
+            list_process[0][n_d_ws[0]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan    
+           // i ++;
             current_cust[index_dep_station][index_dep_server] = 0;
 
             //2. Processed 
@@ -666,7 +686,7 @@ public class Procedure {
 
             //3. Departure WS0 = Arrival WS1
             //1. The units in the queue of WS1 must be ordered -- no longer FIFO
-            if (queue_ws1_counter == 0) { //There are no units in the queue 
+            if (queue_ws1_counter == 0) { //There are no units in the queue of WS1
                 int count = 0;
                 int worker_idle = 0;
                 n_a_ws[1]++;
@@ -777,7 +797,7 @@ public class Procedure {
 
                 queue_ws0_counter--;
                 tot_n_queue_ws[run][0]--;
-                next_arrival = queue_ws0[0];
+                next_arrival = queue_ws0[0]; 
 
                 for (int q = 1; q < queue_ws0.length; q++) {
                     queue_ws0[q - 1] = queue_ws0[q];
@@ -943,6 +963,8 @@ public class Procedure {
             for (i1 = 0; i1 < N; i1++) {
                 customer = list_process[2][i1 +1] ; //n_a of the first finished unit
                 type = job_type[customer] + 1;
+                 System.out.println(customer);
+
 
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
                 waiting_time_2 = waiting_time_job_ws[run][2][customer];
@@ -970,6 +992,8 @@ public class Procedure {
             for (i1 = 0; i1 < N; i1++) {
                 customer = list_process[2][i1 +1]; //n_a of the first finished unit
                 type = job_type[customer] +1;
+                
+                System.out.println(customer);
 
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
                 waiting_time_2 = waiting_time_job_ws[run][2][customer];
