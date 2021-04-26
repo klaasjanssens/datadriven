@@ -102,7 +102,7 @@ public class Procedure {
     double[] mean_customers_queue = new double[max_run];
     double[] tot_n_queue = new double[max_run];
     double[][] tot_n_queue_ws = new double[max_run][max_nr_stations];          // Total number of jobs in queue at workstation over time
-    
+
     int[] queue_ws1 = new int[max_C];                           // Total number of jobs in queue at workstation
     int queue_ws1_counter = 0;
     int[] queue_ws2 = new int[max_C];                           // Total number of jobs in queue at workstation
@@ -140,13 +140,13 @@ public class Procedure {
         /* INPUT DATA RELATED TO PRODUCTION DPT */
         nr_stations = 3;
         nr_servers[0] = 1;
-        nr_servers[1] = 2;
+        nr_servers[1] = 6;
         nr_servers[2] = 5;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 1;
-        
+        triaging = 0;
+
         if (triaging == 0) {
             nr_workstations_job = 2;
             route[0] = 1;
@@ -206,7 +206,7 @@ public class Procedure {
             for (run = 0; run < K; run++) {
                 seed = (l + 1) * K - run;
                 // Ensure you use a different seed each time to get IID replications
-                
+
                 random = new Random();
                 random.setSeed(seed);
 
@@ -441,7 +441,7 @@ public class Procedure {
                         }
                     }
                 }**/
-                
+
                 int c = 0;
 
                 for (int q = 0; q < queue_ws0.length; q++) {
@@ -546,8 +546,7 @@ public class Procedure {
                         }
                     }
                 }
-                
-                
+
                 //queue_ws2[queue_ws2_counter] = list_process[1][n_d_ws[1]];
                 queue_ws2_counter++;
                 tot_n_queue_ws[run][2]++;
@@ -673,7 +672,7 @@ public class Procedure {
 
             //List of jobs processed at a particular WS on a particular moment in time 
             list_process[0][n_d_ws[0]] = current_cust[index_dep_station][index_dep_server]; //n_a opslaan    
-           // i ++;
+            // i ++;
             current_cust[index_dep_station][index_dep_server] = 0;
 
             //2. Processed 
@@ -798,7 +797,7 @@ public class Procedure {
 
                 queue_ws0_counter--;
                 tot_n_queue_ws[run][0]--;
-                next_arrival = queue_ws0[0]; 
+                next_arrival = queue_ws0[0];
 
                 for (int q = 1; q < queue_ws0.length; q++) {
                     queue_ws0[q - 1] = queue_ws0[q];
@@ -903,10 +902,11 @@ public class Procedure {
             printWriter.println(i1 + "\t" + nr_servers[i1] + "\n");
         }
         for (i1 = 0; i1 < nr_arrival_sources; i1++) {
-            if (n_d_as[i1] != 0)
+            if (n_d_as[i1] != 0) {
                 mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
-            else
+            } else {
                 mean_system_time_as[run][i1] = 0;
+            }
             //System.out.println("system time "+ i1 + " " + mean_system_time_as[run][i1] + "\n");
         }
 
@@ -925,15 +925,13 @@ public class Procedure {
             mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
             System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1]);
         }
-        
+
         printWriter.println("\n");
         printWriter.println("Number of jobs finished per category: \n");
         printWriter.println("Category\tNumber finished\n");
         for (i1 = 0; i1 < nr_job_types; i1++) {
-            printWriter.println((i1 + 1) + "\t" +  n_d_as[i1] + "\n");
+            printWriter.println((i1 + 1) + "\t" + n_d_as[i1] + "\n");
         }
-        
-       
 
         printWriter.println("\n");
         printWriter.println("The average waiting time per workstation: \n");
@@ -965,35 +963,44 @@ public class Procedure {
 
         printWriter.println("\n");
         if (triaging == 0) {
-            printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
-            int customer = 0;
-            int type = 0;
-            double waiting_time_1 = 0;
-            double waiting_time_2 = 0;
-            double service_time_1 = 0;
-            double service_time_2 = 0;
-            double system_time = 0;
-            for (i1 = 0; i1 < N; i1++) {
-                customer = list_process[2][i1 +1] ; //n_a of the first finished unit
-                type = job_type[customer] + 1;
-                 System.out.println(customer);
+            i1 = 1;
+            while (list_process[2][i1] != (-1)) {
+                printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
+                int customer = 0;
+                int type = 0;
+                double waiting_time_1 = 0;
+                double waiting_time_2 = 0;
+                double waiting_time_0 = 0;
+                double service_time_1 = 0;
+                double service_time_2 = 0;
+                double service_time_0 = 0;
+                double system_time = 0;
+                for (i1 = 0; i1 < N; i1++) {
+                    customer = list_process[2][i1 + 1]; //n_a of the first finished unit
+                    type = job_type[customer] + 1;
 
+                    //System.out.println(customer);
 
-                waiting_time_1 = waiting_time_job_ws[run][1][customer];
-                waiting_time_2 = waiting_time_job_ws[run][2][customer];
+                    waiting_time_1 = waiting_time_job_ws[run][1][customer];
+                    waiting_time_2 = waiting_time_job_ws[run][2][customer];
+                    // waiting_time_0 = waiting_time_job_ws[run][0][customer];
 
-                service_time_1 = time_service[run][1][customer];
-                service_time_2 = time_service[run][2][customer];
+                    service_time_1 = time_service[run][1][customer];
+                    service_time_2 = time_service[run][2][customer];
+                    // service_time_0 = time_service[run][0][customer];
 
-                system_time = time_system[run][customer];
+                    system_time = time_system[run][customer];
 
-                printWriter.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
-
+                    
+                    printWriter.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
+                    System.out.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
+                    i1++;
+                }
+                
+                i1++;
             }
-        } else {
-            printWriter.println("Customer\tJob type\tWaiting time WS0\tService time WS0\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
-
-            int customer = 0;
+            /*printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
+             int customer = 0;
             int type = 0;
             double waiting_time_1 = 0;
             double waiting_time_2 = 0;
@@ -1006,6 +1013,37 @@ public class Procedure {
                 customer = list_process[2][i1 +1]; //n_a of the first finished unit
                 type = job_type[customer] +1;
                 
+                System.out.println(customer);
+
+                waiting_time_1 = waiting_time_job_ws[run][1][customer];
+                waiting_time_2 = waiting_time_job_ws[run][2][customer];
+               // waiting_time_0 = waiting_time_job_ws[run][0][customer];
+
+                service_time_1 = time_service[run][1][customer];
+                service_time_2 = time_service[run][2][customer];
+               // service_time_0 = time_service[run][0][customer];
+
+                system_time = time_system[run][customer];
+
+                printWriter.println(customer + "\t" + type +  "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time); }
+        **/
+        } else {
+            
+            printWriter.println("Customer\tJob type\tWaiting time WS0\tService time WS0\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
+
+            int customer = 0;
+            int type = 0;
+            double waiting_time_1 = 0;
+            double waiting_time_2 = 0;
+            double waiting_time_0 = 0;
+            double service_time_1 = 0;
+            double service_time_2 = 0;
+            double service_time_0 = 0;
+            double system_time = 0;
+            for (i1 = 0; i1 < N; i1++) {
+                customer = list_process[2][i1 + 1]; //n_a of the first finished unit
+                type = job_type[customer] + 1;
+
                 System.out.println(customer);
 
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
