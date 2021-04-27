@@ -132,7 +132,7 @@ public class Procedure {
     double objective;
     int triaging;                                                               // BINARY = 1 if triaging; 0 if no triaging
 
-    double[] objective_function = new double[max_run];
+    double[] objective_function = new double[200];
 
     /* VARIABLES RELATED TO CLOCK TIME */
     double elapsed_time, time_subproblem;
@@ -200,10 +200,10 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 1;
-
+        L = 200;
+        
         for (int l = 0; l < L; l++) {
-
+            RUN = l;
             K = 1; //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (l + 1) * K - run;
@@ -839,7 +839,7 @@ public class Procedure {
     }
 
     private void output() throws IOException {
-        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging" + run + ".txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Hallo" + RUN + ".txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -952,9 +952,9 @@ public class Procedure {
 
         printWriter.println("\n");
         System.out.println(objective + "= objective");
-        printWriter.println("Objective: " + objective + "\n");
+        printWriter.println("Objective: " + "\t" + objective + "\n");
         
-        objective_function[run] = objective;
+        objective_function[RUN] = objective;
 
         printWriter.println("\n");
         if (triaging == 0) {
@@ -980,6 +980,7 @@ public class Procedure {
                 system_time = time_system[run][customer];
 
                 printWriter.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
+                //System.out.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
 
             }
         } else {
@@ -1011,9 +1012,10 @@ public class Procedure {
                 printWriter.println(customer + "\t" + type + "\t" + waiting_time_0 + "\t" + service_time_0 + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
             }
 
-            printWriter.close();
+            
+            
         }
-
+        printWriter.close();
     }
 
     private void output2() throws IOException {
@@ -1034,8 +1036,8 @@ public class Procedure {
         double average = 0;
         double running_average = 0;
 
-        for (i1 = 0; i1 < K; i1++) {
-            printWriter.println("Objective for " + i1 + " :" + objective_function[i1] + "\n");
+        for (i1 = 0; i1 <= RUN; i1++) {
+            printWriter.println(  objective_function[i1] );
 
         }
 
