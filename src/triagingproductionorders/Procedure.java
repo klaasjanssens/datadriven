@@ -17,7 +17,7 @@ public class Procedure {
     /* SET INPUT VALUES */
     int maxPeriod = 200;
     int max_C = 20000;
-    int max_run = 10;
+    int max_run = 50;
     int max_S = 10;
     int max_AS = 4;
     int max_nr_stations = 10;
@@ -29,12 +29,12 @@ public class Procedure {
     int i1, i2, i6, run, i3;
     double j1, j2, j3;
     double l1;
-    int K, s0, L;
+    int K, s0, L, l;
     double[] avg = new double[30];
     char[] naam = new char[300];
     char[] sproblem = new char[10];
     double left_var_Triangular, right_var_Triangular;
-    int run_n = 0;
+    int RUN;
 
     /* INPUT DATA RELATED TO RADIOLOGY DPT */
     int nr_stations;                                                            //Number of workstations
@@ -131,6 +131,8 @@ public class Procedure {
     int[] obj_fct = new int[max_AS];
     double objective;
     int triaging;                                                               // BINARY = 1 if triaging; 0 if no triaging
+    
+    double[] objective_function = new double[max_run];
 
     /* VARIABLES RELATED TO CLOCK TIME */
     double elapsed_time, time_subproblem;
@@ -199,9 +201,10 @@ public class Procedure {
 
     public void doProcedure() throws IOException {
         L = 1;
-        max_run = 10;
+        
 
         for (int l = 0; l < L; l++) {
+            
             K = 1; //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (l + 1) * K - run;
@@ -214,6 +217,8 @@ public class Procedure {
                 production_system();
                 output();
             }
+            
+            output2();
         }
 
         /* PRINT OUTPUT of Multiple runs */
@@ -835,7 +840,7 @@ public class Procedure {
     }
 
     private void output() throws IOException {
-        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging" + run + ".txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging of replication " + run+  ".txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -960,6 +965,8 @@ public class Procedure {
         printWriter.println("\n");
         System.out.println(objective + "= objective");
         printWriter.println("Objective: " + objective + "\n");
+        
+        objective_function[run] = objective;
 
         printWriter.println("\n");
         if (triaging == 0) {
@@ -1061,5 +1068,40 @@ public class Procedure {
 
             printWriter.close();
         }
+        
+        
+        
+
     }
+    
+    //
+    private void output2() throws IOException {
+         String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function.txt";
+        //"Output_Triaging" + run + ".txt";
+        File file = new File(fileName1);
+        // if file doesnt exists, then create it
+        if (!file.exists()) {
+            file.createNewFile();                                               // create the file
+        } else {
+            PrintWriter writer = new PrintWriter(file);                         // empty the file
+            writer.print("");
+            writer.close();
+        }
+        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
+        PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
+        
+        double average = 0;
+        double running_average = 0;
+        
+        for (i1 = 0; i1 < K; i1++) {
+            printWriter.println("Objective for " +i1+" :" + objective_function[i1] + "\n");
+           
+        }
+        
+          printWriter.close();
+        
+        
+    }
+    
+    
 }
