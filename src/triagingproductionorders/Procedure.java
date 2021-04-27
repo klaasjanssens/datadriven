@@ -143,7 +143,7 @@ public class Procedure {
         nr_stations = 3;
         nr_servers[0] = 1;
         nr_servers[1] = 6;
-        nr_servers[2] = 5;
+        nr_servers[2] = 6;
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
