@@ -216,6 +216,7 @@ public class Procedure {
                 resetVariables();
                 production_system();
                 output();
+                
             }
 
             output2();
