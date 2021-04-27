@@ -131,7 +131,7 @@ public class Procedure {
     int[] obj_fct = new int[max_AS];
     double objective;
     int triaging;                                                               // BINARY = 1 if triaging; 0 if no triaging
-    
+
     double[] objective_function = new double[max_run];
 
     /* VARIABLES RELATED TO CLOCK TIME */
@@ -201,10 +201,9 @@ public class Procedure {
 
     public void doProcedure() throws IOException {
         L = 1;
-        
 
         for (int l = 0; l < L; l++) {
-            
+
             K = 1; //1 replication per run 
             for (run = 0; run < K; run++) {
                 seed = (l + 1) * K - run;
@@ -217,7 +216,7 @@ public class Procedure {
                 production_system();
                 output();
             }
-            
+
             output2();
         }
 
@@ -840,7 +839,7 @@ public class Procedure {
     }
 
     private void output() throws IOException {
-        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging of replication " + run+  ".txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output_Triaging" + run + ".txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -907,11 +906,7 @@ public class Procedure {
             printWriter.println(i1 + "\t" + nr_servers[i1] + "\n");
         }
         for (i1 = 0; i1 < nr_arrival_sources; i1++) {
-            if (n_d_as[i1] != 0) {
-                mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
-            } else {
-                mean_system_time_as[run][i1] = 0;
-            }
+            mean_system_time_as[run][i1] = system_time_as[run][i1] / n_d_as[i1];
             //System.out.println("system time "+ i1 + " " + mean_system_time_as[run][i1] + "\n");
         }
 
@@ -929,13 +924,6 @@ public class Procedure {
         for (i1 = route[0]; i1 < 3; i1++) {
             mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
             System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1]);
-        }
-
-        printWriter.println("\n");
-        printWriter.println("Number of jobs finished per category: \n");
-        printWriter.println("Category\tNumber finished\n");
-        for (i1 = 0; i1 < nr_job_types; i1++) {
-            printWriter.println((i1 + 1) + "\t" + n_d_as[i1] + "\n");
         }
 
         printWriter.println("\n");
@@ -970,72 +958,31 @@ public class Procedure {
 
         printWriter.println("\n");
         if (triaging == 0) {
-            i1 = 1;
-            while (list_process[2][i1] != (-1)) {
-                printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
-                int customer = 0;
-                int type = 0;
-                double waiting_time_1 = 0;
-                double waiting_time_2 = 0;
-                double waiting_time_0 = 0;
-                double service_time_1 = 0;
-                double service_time_2 = 0;
-                double service_time_0 = 0;
-                double system_time = 0;
-                for (i1 = 0; i1 < N; i1++) {
-                    customer = list_process[2][i1 + 1]; //n_a of the first finished unit
-                    type = job_type[customer] + 1;
-
-                    //System.out.println(customer);
-
-                    waiting_time_1 = waiting_time_job_ws[run][1][customer];
-                    waiting_time_2 = waiting_time_job_ws[run][2][customer];
-                    // waiting_time_0 = waiting_time_job_ws[run][0][customer];
-
-                    service_time_1 = time_service[run][1][customer];
-                    service_time_2 = time_service[run][2][customer];
-                    // service_time_0 = time_service[run][0][customer];
-
-                    system_time = time_system[run][customer];
-
-                    
-                    printWriter.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
-                    System.out.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
-                    i1++;
-                }
-                
-                i1++;
-            }
-            /*printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
-             int customer = 0;
+            printWriter.println("Customer\tJob type\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
+            int customer = 0;
             int type = 0;
             double waiting_time_1 = 0;
             double waiting_time_2 = 0;
-            double waiting_time_0 = 0;
             double service_time_1 = 0;
             double service_time_2 = 0;
-            double service_time_0 = 0;
             double system_time = 0;
             for (i1 = 0; i1 < N; i1++) {
-                customer = list_process[2][i1 +1]; //n_a of the first finished unit
-                type = job_type[customer] +1;
-                
+                customer = list_process[2][i1 + 1]; //n_a of the first finished unit
                 System.out.println(customer);
+                type = job_type[customer] + 1;
 
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
                 waiting_time_2 = waiting_time_job_ws[run][2][customer];
-               // waiting_time_0 = waiting_time_job_ws[run][0][customer];
 
                 service_time_1 = time_service[run][1][customer];
                 service_time_2 = time_service[run][2][customer];
-               // service_time_0 = time_service[run][0][customer];
 
                 system_time = time_system[run][customer];
 
-                printWriter.println(customer + "\t" + type +  "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time); }
-        **/
+                printWriter.println(customer + "\t" + type + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
+
+            }
         } else {
-            
             printWriter.println("Customer\tJob type\tWaiting time WS0\tService time WS0\tWaiting time WS1\tService time WS1\tWaiting time WS2\tService time WS2\tSystem time\n");
 
             int customer = 0;
@@ -1050,9 +997,7 @@ public class Procedure {
             for (i1 = 0; i1 < N; i1++) {
                 customer = list_process[2][i1 + 1]; //n_a of the first finished unit
                 type = job_type[customer] + 1;
-
                 System.out.println(customer);
-
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
                 waiting_time_2 = waiting_time_job_ws[run][2][customer];
                 waiting_time_0 = waiting_time_job_ws[run][0][customer];
@@ -1068,15 +1013,11 @@ public class Procedure {
 
             printWriter.close();
         }
-        
-        
-        
 
     }
-    
-    //
+
     private void output2() throws IOException {
-         String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function.txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function .txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -1089,19 +1030,16 @@ public class Procedure {
         }
         FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
         PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
-        
+
         double average = 0;
         double running_average = 0;
-        
+
         for (i1 = 0; i1 < K; i1++) {
-            printWriter.println("Objective for " +i1+" :" + objective_function[i1] + "\n");
-           
+            printWriter.println("Objective for " + i1 + " :" + objective_function[i1] + "\n");
+
         }
-        
-          printWriter.close();
-        
-        
+
+        printWriter.close();
+
     }
-    
-    
 }
