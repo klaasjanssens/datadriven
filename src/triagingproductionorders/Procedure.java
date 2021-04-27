@@ -165,8 +165,9 @@ public class Procedure {
         nr_arrival_sources = 4;
         lambda[0] = 0.5;
         lambda[1] = 1.25;
-        lambda[2] = 0.75;
-        lambda[3] = 0.2;
+        lambda[2] = 4.0 / 3.0;
+        lambda[3] = 5.0;
+
 
         /* INPUT SERVICE PROCESS */
         mu[0][0] = 1.0 / 0.05;
@@ -181,10 +182,10 @@ public class Procedure {
         mu[2][1] = 4.0 / 5.0;
         mu[2][2] = 2.0 / 3.0;
         mu[2][3] = 2.0 / 3.0;
+
         /**
          * mu[3][0] = 0; mu[3][1] = 0; mu[3][2] = 0; mu[3][3] = 0;
          */
-
         obj_fct[0] = 8;
         obj_fct[1] = 4;
         obj_fct[2] = 2;
@@ -200,8 +201,8 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 200;
-        
+        L = 10;
+
         for (int l = 0; l < L; l++) {
             RUN = l;
             K = 1; //1 replication per run 
@@ -281,6 +282,12 @@ public class Procedure {
             }
 
         }
+        for (i1 = 0; i1 < max_nr_stations; i1++) {
+            for (i6 = 0; i6 < max_C; i6++) {
+                list_process[i1][i6] = -1;
+            }
+        }
+
         n_d = 0;
         first_td = 0;
         index_dep_station = 0;
@@ -321,6 +328,60 @@ public class Procedure {
          * < first_ta){ first_ta = t_a[i4]; index_arr = i4; } }
          */
         // TO DO STUDENT    // Calculate average arrival time to the system
+        for (i1 = 0; i1 < run; i1++) {
+            for (i2 = 0; i2 < nr_arrival_sources; i2++) {
+                mean_system_time_as[i1][i2] = 0;
+
+            }
+
+        }
+
+        for (i1 = 0; i1 < run; i1++) {
+            for (i2 = route[0]; i2 < 3; i2++) {
+                mean_waiting_time_ws[i1][i2] = 0;
+
+            }
+
+        }
+
+        for (i1 = 0; i1 < run; i1++) {
+            for (i2 = 0; i2 < nr_stations; i2++) {
+                for (i3 = 0; i3 < nr_servers[i2]; i3++) {
+                    working_time[i1][i2][i3] = 0;
+                }
+
+            }
+
+        }
+
+        for (i1 = 0; i1 < run; i1++) {
+            for (i2 = 0; i2 < nr_stations; i2++) {
+                utilization[i1][i2] = 0;
+
+            }
+
+        }
+
+        objective = 0;
+
+        for (i1 = 0; i1 < max_C; i1++) {
+            queue_ws1[i1] = 0;
+            queue_ws2[i1] = 0;
+            queue_ws0[i1] = 0;
+
+        }
+        queue_ws1_counter = 0;
+        queue_ws2_counter = 0;
+        queue_ws0_counter = 0;
+
+        for (int i = 0; i < max_run; i++) {
+            for (int v = 0; v < max_nr_stations; v++) {
+                for (int x = 0; x < max_C; x++) {
+                    time_service[i][v][x] = 0;
+                }
+            }
+        }
+
     }
 
     //KLOPT
@@ -953,7 +1014,7 @@ public class Procedure {
         printWriter.println("\n");
         System.out.println(objective + "= objective");
         printWriter.println("Objective: " + "\t" + objective + "\n");
-        
+
         objective_function[RUN] = objective;
 
         printWriter.println("\n");
@@ -1012,8 +1073,6 @@ public class Procedure {
                 printWriter.println(customer + "\t" + type + "\t" + waiting_time_0 + "\t" + service_time_0 + "\t" + waiting_time_1 + "\t" + service_time_1 + "\t" + waiting_time_2 + "\t" + service_time_2 + "\t" + system_time);
             }
 
-            
-            
         }
         printWriter.close();
     }
@@ -1037,7 +1096,7 @@ public class Procedure {
         double running_average = 0;
 
         for (i1 = 0; i1 <= RUN; i1++) {
-            printWriter.println(  objective_function[i1] );
+            printWriter.println(objective_function[i1]);
 
         }
 
