@@ -17,7 +17,7 @@ public class Procedure {
     /* SET INPUT VALUES */
     int maxPeriod = 200;
     int max_C = 20000;
-    int max_run = 50;
+    int max_run = 100;
     int max_S = 10;
     int max_AS = 4;
     int max_nr_stations = 10;
@@ -124,6 +124,8 @@ public class Procedure {
     int infinity;
     double[][][] working_time = new double[max_run][max_nr_stations][max_S];
     double[][] utilization = new double[max_run][max_nr_stations];
+    double[][] utilization_average = new double[max_run][max_nr_stations];
+    double[][] waiting_average = new double[max_run][max_nr_stations];
     double[][] ut = new double[max_run][max_nr_stations];
     double[][] mean_working_time = new double[max_run][max_nr_stations];
     double[][] rho_ws_s = new double[max_nr_stations][max_S];
@@ -197,7 +199,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 1000; // Number of jobs
+        N = 90; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -206,7 +208,7 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 10;
+        L = 100;
 
         for (int l = 0; l < L; l++) {
             RUN = l;
@@ -225,6 +227,7 @@ public class Procedure {
             }
 
             output2();
+            output_Utilatizatiion();
         }
 
         /* PRINT OUTPUT of Multiple runs */
@@ -1000,13 +1003,18 @@ public class Procedure {
         printWriter.println("Workstation\tAverage waiting time\n");
         for (i1 = route[0]; i1 < 3; i1++) {
             printWriter.println(i1 + "\t" + mean_waiting_time_ws[run][i1] + "\n");
+
+        }
+
+        for (i1 = route[0]; i1 < 3; i1++) {
+            waiting_average[RUN][i1] = mean_waiting_time_ws[run][i1];
         }
 
         int product = 0;
         double som;
         for (i2 = route[0]; i2 < 3; i2++) {
-            som  =0;
-            
+            som = 0;
+
             for (i1 = 1; i1 <= N; i1++) {
                 product = list_process[2][i1];
                 som = som + time_service[run][i2][product];
@@ -1015,21 +1023,20 @@ public class Procedure {
             }
 
             utilization[run][i2] = som;
-            System.out.println("total ut " + i2 + ":" +utilization[run][i2]);
+            System.out.println("total ut " + i2 + ":" + utilization[run][i2]);
 
         }
 
-        
-         for (i1 = route[0]; i1 < 3; i1++){
-            ut[run][i1] = utilization[run][i1]/ (nr_servers[i1] * t);
-            System.out.println("ut " + i1 + ":" +ut[run][i1] + "time " + t);
+        for (i1 = route[0]; i1 < 3; i1++) {
+            ut[run][i1] = utilization[run][i1] / (nr_servers[i1] * t);
+            System.out.println("ut " + i1 + ":" + ut[run][i1] + "time " + t);
         }
-         
-         
-         
-         
 
- /*
+        for (i1 = route[0]; i1 < 3; i1++) {
+            utilization_average[RUN][i1] = ut[run][i1];
+        }
+
+        /*
         double som = 0;
         for (i1 = route[0]; i1 < 3; i1++) {
             som = 0;
@@ -1098,7 +1105,7 @@ public class Procedure {
             for (i1 = 0; i1 < N; i1++) {
                 customer = list_process[2][i1 + 1]; //n_a of the first finished unit
                 type = job_type[customer] + 1;
-                System.out.println(customer);
+                //System.out.println(customer);
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
                 waiting_time_2 = waiting_time_job_ws[run][2][customer];
                 waiting_time_0 = waiting_time_job_ws[run][0][customer];
@@ -1144,7 +1151,7 @@ public class Procedure {
     }
 
     private void output_Utilatizatiion() throws IOException {
-        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function .txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Utilization .txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -1158,11 +1165,72 @@ public class Procedure {
         FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
         PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
 
-        double average = 0;
-        double running_average = 0;
+        double total_ut_ws1 = 0;
+        double total_ut_ws2 = 0;
+        double total_ut_ws0 = 0;
+        double average_ws1 = 0;
+        double average_ws2 = 0;
+        double average_ws0 = 0;
 
-        for (i1 = 0; i1 <= RUN; i1++) {
-            printWriter.println(objective_function[i1]);
+        double total_wt_ws1 = 0;
+        double total_wt_ws2 = 0;
+        double total_wt_ws0 = 0;
+        double average_wt_ws1 = 0;
+        double average_wt_ws0 = 0;
+        double average_wt_ws2 = 0;
+        if (triaging == 0) {
+            for (i1 = 0; i1 < L; i1++) {
+                total_ut_ws1 += utilization_average[i1][1];
+                total_ut_ws2 += utilization_average[i1][2];
+
+                total_wt_ws1 += waiting_average[i1][1];
+                total_wt_ws2 += waiting_average[i1][2];
+            }
+
+            average_ws1 = total_ut_ws1 / L;
+            average_ws2 = total_ut_ws2 / L;
+
+            average_wt_ws1 = total_wt_ws1 / L;
+            average_wt_ws2 = total_wt_ws2 / L;
+
+            printWriter.println("Average utilization per workstation");
+            printWriter.println("WS1" + "\t" + average_ws1);
+            printWriter.println("WS2" + "\t" + average_ws2 + "\n");
+
+            printWriter.println("Average waiting time per workstation");
+            printWriter.println("WS1" + "\t" + average_wt_ws1);
+            printWriter.println("WS2" + "\t" + average_wt_ws2 + "\n");
+
+        } else {
+
+            for (i1 = 0; i1 < L; i1++) {
+                total_ut_ws1 += utilization_average[i1][1];
+                total_ut_ws2 += utilization_average[i1][2];
+                total_ut_ws0 += utilization_average[i1][0];
+
+                total_wt_ws1 += waiting_average[i1][1];
+                total_wt_ws2 += waiting_average[i1][2];
+                total_wt_ws0 += waiting_average[i1][0];
+                
+                System.out.println(total_wt_ws1 + total_wt_ws2 + total_wt_ws0);
+
+            }
+
+            average_ws1 = total_ut_ws1 / L;
+            average_ws2 = total_ut_ws2 / L;
+            average_ws0 = total_ut_ws0 / L;
+            
+            
+
+            printWriter.println("Average utilization per workstation");
+            printWriter.println("WS0" + "\t" + average_ws0);
+            printWriter.println("WS1" + "\t" + average_ws1);
+            printWriter.println("WS2" + "\t" + average_ws2 + "\n");
+
+            printWriter.println("Average waiting time per workstation");
+            printWriter.println("WS0" + "\t" + average_wt_ws0);
+            printWriter.println("WS1" + "\t" + average_wt_ws1);
+            printWriter.println("WS2" + "\t" + average_wt_ws2 + "\n");
 
         }
 
