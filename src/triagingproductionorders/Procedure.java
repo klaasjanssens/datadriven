@@ -124,6 +124,7 @@ public class Procedure {
     int infinity;
     double[][][] working_time = new double[max_run][max_nr_stations][max_S];
     double[][] utilization = new double[max_run][max_nr_stations];
+    double[][] ut = new double[max_run][max_nr_stations];
     double[][] mean_working_time = new double[max_run][max_nr_stations];
     double[][] rho_ws_s = new double[max_nr_stations][max_S];
     double[] rho_ws = new double[max_nr_stations];
@@ -163,10 +164,14 @@ public class Procedure {
 
         /* INPUT ARRIVAL PROCESS */
         nr_arrival_sources = 4;
-        lambda[0] = 0.5;
-        lambda[1] = 1.25;
-        lambda[2] = 4.0 / 3.0;
-        lambda[3] = 5.0;
+        lambda[0] = 2.0;
+        //0.5;
+
+        lambda[1] = 3.0 / 4.0;
+        //1.25;
+
+        lambda[2] = 3.0 / 4.0;
+        lambda[3] = 1.0 / 5.0;
 
 
         /* INPUT SERVICE PROCESS */
@@ -216,7 +221,7 @@ public class Procedure {
                 resetVariables();
                 production_system();
                 output();
-                
+
             }
 
             output2();
@@ -358,6 +363,7 @@ public class Procedure {
         for (i1 = 0; i1 < run; i1++) {
             for (i2 = 0; i2 < nr_stations; i2++) {
                 utilization[i1][i2] = 0;
+                ut[i1][i2] = 0;
 
             }
 
@@ -902,6 +908,7 @@ public class Procedure {
 
     private void output() throws IOException {
         String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Hallo" + RUN + ".txt";
+        //System.out.println(RUN + " :" + t);
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
         // if file doesnt exists, then create it
@@ -985,7 +992,7 @@ public class Procedure {
 
         for (i1 = route[0]; i1 < 3; i1++) {
             mean_waiting_time_ws[run][i1] = waiting_time_ws[run][i1] / n_d_ws[i1];
-            System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1]);
+            //System.out.println("waiting time " + i1 + " " + mean_waiting_time_ws[run][i1] + "\n" + n_d_ws[i1]);
         }
 
         printWriter.println("\n");
@@ -995,25 +1002,56 @@ public class Procedure {
             printWriter.println(i1 + "\t" + mean_waiting_time_ws[run][i1] + "\n");
         }
 
-        for (i1 = route[0]; i1 < 3; i1++) {
-            double som = 0;
-            for (int i = 0; i < nr_servers[i1]; i++) {
-                som += working_time[run][i1][i];
+        int product = 0;
+        double som;
+        for (i2 = route[0]; i2 < 3; i2++) {
+            som  =0;
+            
+            for (i1 = 1; i1 <= N; i1++) {
+                product = list_process[2][i1];
+                som = som + time_service[run][i2][product];
+                //System.out.println( time_service[run][i1][product]);
+
             }
 
-            utilization[run][i1] = som / (nr_servers[i1] * t);
-            System.out.println("ut time " + i1 + " " + utilization[run][i1] + "\n" + t);
+            utilization[run][i2] = som;
+            System.out.println("total ut " + i2 + ":" +utilization[run][i2]);
+
         }
 
+        
+         for (i1 = route[0]; i1 < 3; i1++){
+            ut[run][i1] = utilization[run][i1]/ (nr_servers[i1] * t);
+            System.out.println("ut " + i1 + ":" +ut[run][i1] + "time " + t);
+        }
+         
+         
+         
+         
+
+ /*
+        double som = 0;
+        for (i1 = route[0]; i1 < 3; i1++) {
+            som = 0;
+            for (int i = 0; i < nr_servers[i1]; i++) {
+                som += working_time[run][i1][i];
+                
+            }
+            System.out.println(som + " " + i1);
+            utilization[run][i1] = som / (nr_servers[i1] * t);
+            System.out.println("ut time " + i1 + " " + utilization[run][i1] + "\n" + t);
+            
+        }*/
         printWriter.println("\n");
         printWriter.println("The utilization time per workstation: \n");
         printWriter.println("Workstation\tUtilization\n");
         for (i1 = route[0]; i1 < 3; i1++) {
-            printWriter.println(i1 + "\t" + utilization[run][i1] + "\n");
+            printWriter.println(i1 + "\t" + ut[run][i1] + "\n");
+            //System.out.println(i1 + "\t" + ut[run][i1] + "\n");
         }
 
         printWriter.println("\n");
-        System.out.println(objective + "= objective");
+        //System.out.println(objective + "= objective");
         printWriter.println("Objective: " + "\t" + objective + "\n");
 
         objective_function[RUN] = objective;
@@ -1030,7 +1068,7 @@ public class Procedure {
             double system_time = 0;
             for (i1 = 0; i1 < N; i1++) {
                 customer = list_process[2][i1 + 1]; //n_a of the first finished unit
-                System.out.println(customer);
+                // System.out.println(customer);
                 type = job_type[customer] + 1;
 
                 waiting_time_1 = waiting_time_job_ws[run][1][customer];
@@ -1079,6 +1117,33 @@ public class Procedure {
     }
 
     private void output2() throws IOException {
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function .txt";
+        //"Output_Triaging" + run + ".txt";
+        File file = new File(fileName1);
+        // if file doesnt exists, then create it
+        if (!file.exists()) {
+            file.createNewFile();                                               // create the file
+        } else {
+            PrintWriter writer = new PrintWriter(file);                         // empty the file
+            writer.print("");
+            writer.close();
+        }
+        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile(), true);   // APPENDS the text file with anything printed to the file during the rest of the procedure
+        PrintWriter printWriter = new PrintWriter(fileWriter);                  // OPEN OUTPUT FILE
+
+        double average = 0;
+        double running_average = 0;
+
+        for (i1 = 0; i1 <= RUN; i1++) {
+            printWriter.println(objective_function[i1]);
+
+        }
+
+        printWriter.close();
+
+    }
+
+    private void output_Utilatizatiion() throws IOException {
         String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Objective function .txt";
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
