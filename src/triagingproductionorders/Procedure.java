@@ -150,7 +150,7 @@ public class Procedure {
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 0;
+        triaging = 1;
 
         if (triaging == 0) {
             nr_workstations_job = 2;
@@ -199,7 +199,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 1500; // Number of jobs
+        N = 1200; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -208,7 +208,7 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 1;
+        L = 30;
 
         for (int l = 0; l < L; l++) {
             RUN = l;
@@ -910,7 +910,7 @@ public class Procedure {
     }
 
     private void output() throws IOException {
-        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Hallo" + RUN + ".txt";
+        String fileName1 = "C:\\Users\\lisad\\Desktop\\2020-2021\\Robust and Data-driven Optimisation and Simulation\\Project 3\\Output triaging" + RUN + ".txt";
         //System.out.println(RUN + " :" + t);
         //"Output_Triaging" + run + ".txt";
         File file = new File(fileName1);
