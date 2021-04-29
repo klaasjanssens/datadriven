@@ -199,7 +199,7 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 90; // Number of jobs
+        N = 1500; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -208,7 +208,7 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 100;
+        L = 1;
 
         for (int l = 0; l < L; l++) {
             RUN = l;
