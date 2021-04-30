@@ -9,7 +9,7 @@ import java.util.Random;
 
 class Distributions {
     public static double Exponential_distribution (double lambda, Random r){
-        double j1 = (float) r.nextInt(1000+1)/1000;
+        double j1 = (float) r.nextInt(1000)/1000;
         if (j1 == 0)
             j1 += 0.0001;
         double j2 = -Math.log(j1)/lambda;
