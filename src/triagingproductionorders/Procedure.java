@@ -14,6 +14,7 @@ import java.util.Random;
 
 public class Procedure {
 
+    //KLAAR
     /* SET INPUT VALUES */
     int maxPeriod = 200;
     int max_C = 20000;
