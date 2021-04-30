@@ -150,7 +150,7 @@ public class Procedure {
 
         /* INPUT DATA RELATED TO SYSTEM JOBS */
         nr_job_types = 4;
-        triaging = 1;
+        triaging = 0;
 
         if (triaging == 0) {
             nr_workstations_job = 2;
@@ -166,15 +166,16 @@ public class Procedure {
 
         /* INPUT ARRIVAL PROCESS */
         nr_arrival_sources = 4;
-        lambda[0] = 2.0;
+        lambda[0] = 0.5;
         //0.5;
 
-        lambda[1] = 3.0 / 4.0;
+        lambda[1] = 1.25;
         //1.25;
 
-        lambda[2] = 3.0 / 4.0;
-        lambda[3] = 1.0 / 5.0;
-
+        lambda[2] = 0.75;
+        lambda[3] =  0.2;
+        
+     
 
         /* INPUT SERVICE PROCESS */
         mu[0][0] = 1.0 / 0.05;
@@ -199,7 +200,8 @@ public class Procedure {
         obj_fct[3] = 1;
 
         /* STOP CRITERION (design choice) */
-        N = 1200; // Number of jobs
+        N = 1200;
+                //1200; // Number of jobs
         T = 1000; // Max Time
 
         /* OTHER PARAMETERS */
@@ -208,7 +210,7 @@ public class Procedure {
     }
 
     public void doProcedure() throws IOException {
-        L = 30;
+        L = 1;
 
         for (int l = 0; l < L; l++) {
             RUN = l;
